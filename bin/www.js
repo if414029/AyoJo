@@ -5,7 +5,7 @@
  */
 
 const app = require('../app')
-const debug = require('debug')('qluster-api:server')
+const debug = require('debug')('ayojo-api:server')
 const http = require('http')
 const models = require('../config/models')
 
@@ -67,7 +67,7 @@ function onListening() {
 }
 // { force: true }
 app.set('port', port)
-models.sequelize.sync({ force: true }).then(() => {
+models.sequelize.sync({ force: false }).then(() => {
   server.listen(port, () => console.log('Qluster Database Sync Done.'))
   server.on('error', onError)
   server.on('listening', onListening)

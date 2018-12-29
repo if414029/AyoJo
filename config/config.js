@@ -2,7 +2,7 @@ module.exports = {
     development: {
       username: "root",
       password: "Alliswell19",
-      database: "qlusterprofiledev",
+      database: "ayojo",
       host: "127.0.0.1",
       dialect: 'mysql',
       logging: false,
