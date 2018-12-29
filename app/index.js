@@ -6,13 +6,9 @@ const cors = require('cors')
 const logger = require('morgan')
 const swagger = require('swagger-ui-express')
 const docs = require('../docs')
-const users = require('./user')
-const blogs = require('./blog')
-const testimonies = require('./testimony')
-const uploads = require('./upload/uploads')
-const proyeks = require('./proyek')
-const homes = require('./home')
-const categoryBlogs = require('./category_blog')
+const appUsers = require('./app_user')
+const dashboardUsers = require('./dashboard_user')
+const reports = require('./report')
 require('dotenv').config({})
 
 const app = express()
@@ -30,13 +26,9 @@ app.use('/docs', swagger.serve, swagger.setup(docs, {
   customCss: '.swagger-ui .topbar { display: none }',
 }))
 
-app.use(['/api/users', '/api/users'], users)
-app.use(['/api/blogs', '/api/blogs'], blogs)
-app.use(['/api/testimonies', '/api/testimonies'], testimonies)
-app.use(['/api/uploads', '/api/uploads'], uploads)
-app.use(['/api/proyeks', '/api/proyeks'], proyeks)
-app.use(['/api/homes', '/api/homes'], homes)
-app.use(['/api/categoryBlogs', '/api/categoryBlogs'], categoryBlogs)
+app.use(['/api/appUsers', '/api/appUsers'], appUsers)
+app.use(['/api/dashboardUsers', '/api/dashboardUsers'], dashboardUsers)
+app.use(['/api/reports', '/api/reports'], reports)
 
 // handling unhandled rejection
 process.on('unhandledRejection', (reason) => {
