@@ -34,7 +34,7 @@ function normalizePort(val) {
 
   return false
 }
-const port = normalizePort(process.env.PORT || '5000')
+const port = normalizePort(process.env.PORT || '3000')
 function onError(error) {
   if (error.syscall !== 'listen') {
     throw error
@@ -68,7 +68,7 @@ function onListening() {
 // { force: true }
 app.set('port', port)
 models.sequelize.sync({ force: false }).then(() => {
-  server.listen(port, () => console.log('Qluster Database Sync Done.'))
+  server.listen(port, () => console.log('AyoJo Database Sync Done.'))
   server.on('error', onError)
   server.on('listening', onListening)
 })
