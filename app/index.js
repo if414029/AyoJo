@@ -4,27 +4,21 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const logger = require('morgan')
-const swagger = require('swagger-ui-express')
-const docs = require('../docs')
 const appUsers = require('./app_user')
 const dashboardUsers = require('./dashboard_user')
 const reports = require('./report')
 require('dotenv').config({})
 
 const app = express()
+
 // server use
+// app.use(cors('*'))
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
-app.use(cors('*'))
 app.use(logger('dev'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
-
-app.use('/docs', swagger.serve, swagger.setup(docs, {
-  customeSiteTitle: 'Produk Profil Qluster',
-  customfavIcon: 'Produk Profil Qluster',
-  customCss: '.swagger-ui .topbar { display: none }',
-}))
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(['/api/appUsers', '/api/appUsers'], appUsers)
 app.use(['/api/dashboardUsers', '/api/dashboardUsers'], dashboardUsers)
