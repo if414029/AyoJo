@@ -62,7 +62,7 @@ module.exports = {
             }
             const newAppUser = await AppUser.create({
                 id,
-                username: fixUsername,
+                username: fixUsername.toLowerCase(),
                 password: generatedId(),
                 name,
                 dob,
@@ -110,7 +110,8 @@ module.exports = {
                 )
         
                 const result = { code: 200, data, header }
-                AppToken.create({
+                
+                await AppToken.create({
                     id,
                     jwtToken: header,
                     AppUserId: app.id
@@ -170,5 +171,5 @@ async function getAppDetail(appId, app) {
     }
     
     return appObj
-  }
+}
   

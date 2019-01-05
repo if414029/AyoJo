@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const logger = require('morgan')
 const appUsers = require('./app_user')
+const uploads = require('./upload/uploads')
 const dashboardUsers = require('./dashboard_user')
 const reports = require('./report')
 require('dotenv').config({})
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(['/api/appUsers', '/api/appUsers'], appUsers)
 app.use(['/api/dashboardUsers', '/api/dashboardUsers'], dashboardUsers)
 app.use(['/api/reports', '/api/reports'], reports)
+app.use(['/api/uploads', '/api/uploads'], uploads)
 
 // handling unhandled rejection
 process.on('unhandledRejection', (reason) => {

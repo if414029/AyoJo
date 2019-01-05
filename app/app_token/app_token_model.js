@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       jwtToken: DataTypes.STRING
     })
     AppToken.associate = (models) => {
-        AppToken.belongsTo(models.AppUser, { foreignKey: 'AppuserId' })
+        AppToken.belongsTo(models.AppUser, { foreignKey: 'AppUserId' })
     }
     return AppToken
   }
