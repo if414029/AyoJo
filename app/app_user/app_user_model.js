@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
         dob: DataTypes.STRING  
     })
     AppUser.associate = (models) => {
-      AppUser.belongsTo(models.DashboardUser, { foreignKey: 'CoordinatorId' })  
+        AppUser.belongsTo(models.DashboardUser, { foreignKey: 'CoordinatorId' })
+        AppUser.hasMany(models.Report)
     }
     return AppUser
 }

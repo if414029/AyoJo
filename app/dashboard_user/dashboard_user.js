@@ -58,7 +58,7 @@ module.exports = {
             const fixUsername = splitUsername[0] + splitDob[2]
             const newDashboardUser = await DashboardUser.create({
                 id,
-                username: fixUsername,
+                username: fixUsername.toLowerCase(),
                 password: generatedId(),
                 name,
                 dob,

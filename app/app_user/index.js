@@ -31,7 +31,7 @@ router.put('/:id', async(req, res) => {
 })
 router.delete('/:id', async(req, res) => {
     req.body.appUserId = req.params.id
-    const result = await manager.delete(req.body)
+    const result = await appUser.delete(req.body)
     return response(res, result.code, result.data)
 })
 
