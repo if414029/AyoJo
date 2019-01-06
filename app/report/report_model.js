@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
         kabupaten: DataTypes.STRING,
         provinsi: DataTypes.STRING
     })
-    Report.assosiate = (models) => {
-        Report.belongsToMany(models.AppUser, { foreignKey: 'AppUserId', unique: false })
+    Report.associate = (models) => {
+        Report.belongsTo(models.AppUser, { foreignKey: 'AppUserId' })
     }
     return Report
 }

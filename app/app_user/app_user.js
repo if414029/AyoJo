@@ -130,6 +130,30 @@ module.exports = {
             return { code: 500, data: e.message }
         }
     },
+    cekStatus: async (appObj) => {
+        try {
+            const { oldToken } = appObj
+            const findOld = await AppToken.find({
+                where: {
+                    jwtToken: oldToken
+                }
+            })
+            const findNew = await AppToken.find({
+                where: {
+                    AppUserId: findOld.AppUserId
+                },
+                order: [
+                    ['createdAt', 'DESC'],
+                ]
+            })
+            if (findOld.jwtToken != findNew.jwtToken) {
+                return { code: 401, data: 'Please Relogin' }
+            } 
+            return { code: 200, data: "You're Login Before" }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
     edit: async (appObj) => {
         try {
 

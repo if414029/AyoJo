@@ -6,14 +6,15 @@ const router = express.Router()
 const { authApp, authDashboard } = middle
 
 
-router.get('/dashboard',async(req, res) => {
+router.get('/dashboard', authDashboard, async(req, res) => {
     req.body.query = req.query
+    req.body.DashboardUserId = req.DashboardUserId
     const result = await report.getDashboard(req.body)
     return response(res, result.code, result.data)
 })
 router.get('/mobile', authApp, async(req, res) => {
     req.body.query = req.query
-    req.body.AppuserId = req.AppuserId
+    req.body.AppUserId = req.AppUserId
     const result = await report.getMobile(req.body)
     return response(res, result.code, result.data)
 })
@@ -25,7 +26,7 @@ router.get('/detailMobile/:id', authApp, async(req, res) => {
     return response(res, result.code, result.data)
 })
 router.post('/', authApp, async(req, res) => {
-    req.body.AppuserId = req.AppuserId
+    req.body.AppUserId = req.AppUserId
     const result = await report.create(req.body)
     return response(res, result.code, result.data)
 })
