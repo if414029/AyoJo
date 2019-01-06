@@ -64,24 +64,27 @@ module.exports = {
     getDashboard: async (reportObj) => {
         try {
             const { query, DashboardUserId } = reportObj
-
             const { limit, sortby, page, order, filterbydate, filterbysurveyor, searchbykelurahan,
                     searchbykecamatan, searchbykabupaten, searchbyprovinsi } = query
             const pageNum = Number(page) 
             const lim = limit == 'all' ? 'all' : limit ? Number(limit) : 10
             
-            // let sequelizeQuery = {
-            //     include: [
-            //         { model: AppUser }
-            //     ], 
-            //     where: { 
-            //     },
-            //     order: [[sortby || 'id', order || 'DESC']],
-            //     limit: lim
-            // }
-            // if(lim == 'all'){
-            //     delete sequelizeQuery.limit
-            // }
+            let sequelizeQuery = {
+                include: [
+                    { model: AppUser }
+                ], 
+                where: { },
+                order: [[sortby || 'id', order || 'DESC']],
+                limit: lim
+            }
+            if(lim == 'all'){
+                delete sequelizeQuery.limit
+            }
+
+            const dashboardUser = await DashboardUser.findById(DashboardUserId)
+            if(dashboardUser.RoleId != 'jmkt41ot') {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$AppUser.CoordinatorId$': { $eq: dashboardUser.id } } )
+            }
 
             if (filterbydate) {
                 let now = new Date();
@@ -111,23 +114,17 @@ module.exports = {
             if(searchbyprovinsi) {
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { provinsi: { $like: `%${searchbyprovinsi}%` } } )
             }
-        
-            const reports = await Report.findAll({
-                include: [
-                    { model: AppUser }
-                ],
-            })
-            console.log(JSON.stringify(reports,null,2))
 
-            // const reports = await Report.findAndCountAll(sequelizeQuery)
-            // const result = { count: reports.count, page: Math.ceil(reports.count / lim), rows: [] }
-            // let reportProcess = await reports.rows.map(async (report) => {
-            //     let reportObj = await getReportDetail(report.id, report)
-            //     await result.rows.push(reportObj)
-            // })
-            // await Promise.all(reportProcess)
-            return { code: 200, data: 'tes' }
-            // return { code: 200, data: Object.assign(result, { page: Math.ceil(result.count / lim) || 1 }) }
+            const reports = await Report.findAndCountAll(sequelizeQuery)
+
+            const result = { count: reports.count, page: Math.ceil(reports.count / lim), rows: [] }
+            let reportProcess = await reports.rows.map(async (report) => {
+                let reportObj = await getReportDetail(report.id, report)
+                await result.rows.push(reportObj)
+            })
+            await Promise.all(reportProcess)
+
+            return { code: 200, data: Object.assign(result, { page: Math.ceil(result.count / lim) || 1 }) }
         } catch (e) {
             return { code: 500, data: e.message }
         }
@@ -135,13 +132,14 @@ module.exports = {
     create: async (reportObj) => {
         try {
             const {
-                AppuserId, name, address1, pekerjaan, usia, jenisKelamin, lat, lng, images, answer1, answer2
+                AppUserId, name, address1, pekerjaan, usia, jenisKelamin, lat, lng, images, answer1, answer2
             } = reportObj 
 
             if (!name || !lat || !lng || !images || !answer1 || !answer2 || !address1 || !pekerjaan || !usia || !jenisKelamin) {
                 return { code: 400, data: "Required field must be filled" }
             }
-            const app = await AppUser.findById(AppuserId)
+            const app = await AppUser.findById(AppUserId)
+            console.log(app)
             const id = generatedId()
 
             const dataGeo = await nodeGeocoder.reverse({lat:lat, lon:lng})

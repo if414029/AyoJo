@@ -24,6 +24,10 @@ router.post('/logout', async(req, res) => {
     const result = await appUser.logout(req.body)
     return response(res, result.code, result.data)
 })
+router.post('/cekStatus', async(req, res) => {
+    const result = await appUser.cekStatus(req.body)
+    return response(res, result.code, result.data)
+})
 router.put('/:id', async(req, res) => {
     req.body.appUserId = req.params.id
     const result = await appUser.edit(req.body)
