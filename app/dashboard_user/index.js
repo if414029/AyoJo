@@ -22,6 +22,10 @@ router.post('/logout', async(req, res) => {
     const result = await dashboardUser.logout(req.body)
     return response(res, result.code, result.data)
 })
+router.post('/cekStatus', async(req, res) => {
+    const result = await dashboardUser.cekStatus(req.body)
+    return response(res, result.code, result.data)
+})
 router.put('/:id', async(req, res) => {
     req.body.dashboardUserId = req.params.id
     const result = await dashboardUser.edit(req.body)

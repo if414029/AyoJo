@@ -15,13 +15,13 @@ module.exports = {
       dialect: 'mysql',
     },
     production: {
-      username: "root",
-      password: "Alliswell19",
-      database: "qlusterprofilecloud",
-      host:  "35.240.144.82",
+      username: process.env.MY_USER,
+      password: process.env.MY_PASS,
+      database: process.env.MY_DBN,
+      host:  process.env.MY_HOST,
       dialect: 'mysql',
       dialectOptions: {
-        socketPath: `/cloudsql/qlusteramos:asia-southeast1:intern-qluster-18`,
+        socketPath: `/cloudsql/quick-country-227610:asia-southeast1:ayojodb`,
       },
     },
   }

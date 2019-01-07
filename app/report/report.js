@@ -32,15 +32,23 @@ module.exports = {
                     sequelizeQuery.where.id = { $gt: afterId }
                 } 
             }
+            
             if (filterbydate) {
-                let now = new Date();
-                const dateNow = date.format(now, 'MM/DD/YYYY');
                 if(filterbydate === 'Day') {
-                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: { $eq: dateNow } } )
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('day'),
+                        $lt: moment().endOf('day')
+                    } } )
                 } else if (filterbydate === 'Week') {
-                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { fullName: { $like: `%${searchbyname}%` } } )
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('week'),
+                        $lt: moment().endOf('week')
+                    } } )
                 } else if (filterbydate === 'Month') {
-                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { fullName: { $like: `%${searchbyname}%` } } )
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('month'),
+                        $lt: moment().endOf('month')
+                    } } )
                 }
             }
             const reports = await Report.findAndCountAll(sequelizeQuery)
@@ -88,14 +96,21 @@ module.exports = {
             }
 
             if (filterbydate) {
-                let now = new Date();
-                const dateNow = date.format(now, 'YYYY/MM/DD HH:mm:ss');
                 if(filterbydate === 'Day') {
-                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: { $eq: dateNow } } )
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('day'),
+                        $lt: moment().endOf('day')
+                    } } )
                 } else if (filterbydate === 'Week') {
-                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { fullName: { $like: `%${searchbyname}%` } } )
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('week'),
+                        $lt: moment().endOf('week')
+                    } } )
                 } else if (filterbydate === 'Month') {
-                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { fullName: { $like: `%${searchbyname}%` } } )
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('month'),
+                        $lt: moment().endOf('month')
+                    } } )
                 }
             }
 

@@ -126,6 +126,30 @@ module.exports = {
             return { code: 500, data: e.message }
         }
     },
+    cekStatus: async (dashboardObj) => {
+        try {
+            const { oldToken } = dashboardObj
+            const findOld = await DashboardToken.find({
+                where: {
+                    jwtToken: oldToken
+                }
+            })
+            const findNew = await DashboardToken.find({
+                where: {
+                    AppUserId: findOld.AppUserId
+                },
+                order: [
+                    ['createdAt', 'DESC'],
+                ]
+            })
+            if (findOld.jwtToken != findNew.jwtToken) {
+                return { code: 401, data: 'Please Relogin' }
+            } 
+            return { code: 200, data: "You're Login Before" }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
     edit: async (dashboardObj) => {
         try {
 
