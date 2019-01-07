@@ -3,19 +3,20 @@ const models = require('../../config/models')
 const generatedId = require('../../lib/idGenerator')
 const nodeGeocoder = require('../../lib/geocoder')
 const date = require('date-and-time');
+const moment = require('moment')
 
 const { Report, DashboardUser, AppUser } = models
 
 module.exports = {
     getMobile: async (reportObj) => {
         try {
-            const { query, AppuserId } = reportObj
+            const { query, AppUserId } = reportObj
             const { limit, sortby, order, afterId, filterbydate } = query
             const lim = limit ? Number(limit) : 10
-            const app = await AppUser.findById(AppuserId)
+            const app = await AppUser.findById(AppUserId)
             let sequelizeQuery = {
                 where: { 
-                    AppuserId: app.id 
+                    AppUserId: app.id 
                 },
                 order: [[sortby || 'id', order || 'DESC']],
                 limit: lim
@@ -33,7 +34,7 @@ module.exports = {
             }
             if (filterbydate) {
                 let now = new Date();
-                const dateNow = date.format(now, 'YYYY/MM/DD HH:mm:ss');
+                const dateNow = date.format(now, 'MM/DD/YYYY');
                 if(filterbydate === 'Day') {
                     sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: { $eq: dateNow } } )
                 } else if (filterbydate === 'Week') {
