@@ -155,9 +155,7 @@ module.exports = {
                 return { code: 400, data: "Required field must be filled" }
             }
             const app = await AppUser.findById(AppUserId)
-            console.log(app)
             const id = generatedId()
-
             const dataGeo = await nodeGeocoder.reverse({lat:lat, lon:lng})
 
             const newReport = await Report.create({

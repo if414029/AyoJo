@@ -21,7 +21,7 @@ module.exports = {
       host:  process.env.MY_HOST,
       dialect: 'mysql',
       dialectOptions: {
-        socketPath: `/cloudsql/quick-country-227610:asia-southeast1:ayojodb`,
+        socketPath: `/cloudsql/ayojodev:asia-east2:ayojo2019`,
       },
     },
   }
