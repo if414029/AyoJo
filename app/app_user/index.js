@@ -11,6 +11,10 @@ router.get('/', authDashboard, async(req, res) => {
     const result = await appUser.get(req.body)
     return response(res, result.code, result.data)
 })
+router.get('/getAllUser', async(req, res) => {
+    const result = await appUser.getAllUser(req.body)
+    return response(res, result.code, result.data)
+})
 router.post('/', async(req, res) => {
     const result = await appUser.create(req.body)
     return response(res, result.code, result.data)

@@ -3,14 +3,22 @@ const models = require('../../config/models')
 const generatedId = require('../../lib/idGenerator')      
 const jwtToken = require('../../lib/jwtGenerator') 
 
-const { AppUser, DashboardUser,AppToken } = models
+const { AppUser, DashboardUser, AppToken, Report } = models
 // https://documenter.getpostman.com/view/2342531/RznCqz3m
 module.exports = {
+    getAllUser: async(appObj) => {
+        try {
+            const allUser = await AppUser.findAndCountAll()
+            return { code: 200, data: allUser.count }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
     get: async (appObj) => {
         try {
             const { DashboardUserId, query } = appObj
             const {
-                limit, sortby, order, page, searchbyname
+                limit, sortby, order, page, searchbyname, filterbycoordinator
             } = query
             const dashboard = await DashboardUser.findById(DashboardUserId)
             const pageNum = Number(page) 
@@ -32,6 +40,9 @@ module.exports = {
             if(searchbyname) {
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { name: { $like: `%${searchbyname}%` } } )
             }
+            if(filterbycoordinator) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { CoordinatorId : filterbycoordinator } )
+            }
             if(lim == 'all'){
                 delete sequelizeQuery.limit
             }
@@ -39,7 +50,12 @@ module.exports = {
             const apps = await AppUser.findAndCountAll(sequelizeQuery)
             const result = { count: apps.count, page: Math.ceil(apps.count / lim), rows: [] }
             let appProcess = await apps.rows.map(async (app) => {
-                let appObject = await getAppDetail(app.id, app)
+                let allReport = await Report.findAndCountAll({
+                    where: {
+                        AppUserId: app.id
+                    }
+                })
+                let appObject = await getAppDetail(app.id, app, allReport.count)
                 await result.rows.push(appObject)
             })
             await Promise.all(appProcess)
@@ -170,7 +186,7 @@ module.exports = {
     }
 }
 
-async function getAppDetail(appId, app) {
+async function getAppDetail(appId, app, countReport) {
     if(!app) {
       app = await AppUser.findOne({
         where: {
@@ -188,6 +204,7 @@ async function getAppDetail(appId, app) {
       name: app.fullName,
       dateOfBirth: app.dob,
       createdAt: app.createdAt,
+      totalMarker: countReport
     }
     if(app.DashboardUser){
       appObj.coordinatorId = app.DashboardUser.id

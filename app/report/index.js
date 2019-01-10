@@ -18,6 +18,10 @@ router.get('/mobile', authApp, async(req, res) => {
     const result = await report.getMobile(req.body)
     return response(res, result.code, result.data)
 })
+router.get('/getAllReport', async(req, res) => {
+    const result = await report.getAllReport(req.body)
+    return response(res, result.code, result.data)
+})
 router.get('/detailMobile/:id', authApp, async(req, res) => {
     req.body.query = req.query
     req.body.AppuserId = req.AppuserId

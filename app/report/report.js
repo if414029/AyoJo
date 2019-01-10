@@ -8,6 +8,14 @@ const moment = require('moment')
 const { Report, DashboardUser, AppUser } = models
 
 module.exports = {
+    getAllReport: async (reportObj) => {
+        try {
+            const allReport = await Report.findAndCountAll()
+            return { code: 200, data: allReport.count }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
     getMobile: async (reportObj) => {
         try {
             const { query, AppUserId } = reportObj

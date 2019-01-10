@@ -21,10 +21,10 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')))
 
+app.use(['/api/uploads', '/api/uploads'], uploads)
 app.use(['/api/appUsers', '/api/appUsers'], appUsers)
 app.use(['/api/dashboardUsers', '/api/dashboardUsers'], dashboardUsers)
 app.use(['/api/reports', '/api/reports'], reports)
-app.use(['/api/uploads', '/api/uploads'], uploads)
 
 // handling unhandled rejection
 process.on('unhandledRejection', (reason) => {
