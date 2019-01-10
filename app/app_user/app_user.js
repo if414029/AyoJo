@@ -201,7 +201,7 @@ async function getAppDetail(appId, app, countReport) {
       id: app.id,
       username: app.username,
       password: app.password,
-      name: app.fullName,
+      name: app.name,
       dateOfBirth: app.dob,
       createdAt: app.createdAt,
       totalMarker: countReport
