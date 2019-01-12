@@ -23,6 +23,7 @@ module.exports = {
             const dashboard = await DashboardUser.findById(DashboardUserId)
             const pageNum = Number(page) 
             const lim = limit == 'all' ? 'all' : limit ? Number(limit) : 10
+            
             let sequelizeQuery = {
                 distinct: true,
                 include: [
@@ -34,6 +35,10 @@ module.exports = {
                 ],
                 limit: lim 
             }
+            if(pageNum > 1) {
+                sequelizeQuery.limit = [(pageNum-1) * lim || 0, lim] 
+            }
+
             if(dashboard.RoleId != 'jmkt41ot'){
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { CoordinatorId: dashboard.id } )
             }

@@ -29,6 +29,9 @@ module.exports = {
                 ],
                 limit: lim 
             }
+            if(pageNum > 1) {
+                sequelizeQuery.limit = [(pageNum-1) * lim || 0, lim] 
+            }
             if(searchbyname) {
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { name: { $like: `%${searchbyname}%` } } )
             }

@@ -94,6 +94,9 @@ module.exports = {
                 order: [[sortby || 'id', order || 'DESC']],
                 limit: lim
             }
+            if(pageNum > 1) {
+                sequelizeQuery.limit = [(pageNum-1) * lim || 0, lim] 
+            }
             if(lim == 'all'){
                 delete sequelizeQuery.limit
             }
