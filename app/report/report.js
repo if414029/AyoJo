@@ -223,7 +223,7 @@ async function getReportDetail(reportId, report) {
     }
     const reportObj = {
       id: report.id,
-      name: report.fullName,
+      name: report.name,
       address1: report.address1,
       address2: report.address2,
       pekerjaan: report.pekerjaan,
