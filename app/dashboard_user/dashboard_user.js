@@ -181,7 +181,7 @@ async function getDashboardDetail(dashboardId, dashboard) {
       id: dashboard.id,
       username: dashboard.username,
       password: dashboard.password,
-      name: dashboard.fullName,
+      name: dashboard.name,
       dateOfBirth: dashboard.dob,
       createdAt: dashboard.createdAt,
     }
