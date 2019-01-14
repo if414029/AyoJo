@@ -79,8 +79,8 @@ module.exports = {
             const id = generatedId() 
             const coordinator = await DashboardUser.findById(CoordinatorId)
             const splitUsername = name.split(' ')
-            const splitDob = dob.split('-')
-            const fixUsername = splitUsername[0] + splitDob[2]
+            const splitDob = dob.slice(0,3)
+            const fixUsername = splitUsername[0] + splitDob
             if(!coordinator) {
                 return { code: 404, data: 'Invalid Coordinator Id' }
             }
