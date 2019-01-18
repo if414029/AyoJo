@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         username: DataTypes.STRING,
         password: DataTypes.STRING,
         name: DataTypes.STRING,
-        dob: DataTypes.STRING  
+        dob: DataTypes.STRING,
+        wilayah: DataTypes.STRING,
+        dapil: DataTypes.STRING,
+        kabupaten: DataTypes.STRING  
     })
     DashboardUser.associate = (models) => {
       DashboardUser.belongsTo(models.Role, { foreignKey: 'RoleId' })

@@ -54,7 +54,7 @@ module.exports = {
     },
     create: async (dashboardObj) => {
         try {
-            const { username, password, name, dob, RoleId } = dashboardObj
+            const { wilayah, dapil, kabupaten, name, dob, RoleId } = dashboardObj
             const id = generatedId() 
             const splitUsername = name.split(' ')
             const splitDob = dob.split('-')
@@ -65,6 +65,9 @@ module.exports = {
                 password: generatedId(),
                 name,
                 dob,
+                wilayah,
+                dapil,
+                kabupaten,
                 RoleId: 'jmdsa4lk'
             })
             return { code: 200, data: newDashboardUser }
@@ -185,6 +188,9 @@ async function getDashboardDetail(dashboardId, dashboard) {
       username: dashboard.username,
       password: dashboard.password,
       name: dashboard.name,
+      wilayah: dashboard.wilayah,
+      dapil: dashboard.dapil,
+      kabupaten: dashboard.kabupaten,
       dateOfBirth: dashboard.dob,
       createdAt: dashboard.createdAt,
     }
