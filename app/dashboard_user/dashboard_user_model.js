@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
         username: DataTypes.STRING,
         password: DataTypes.STRING,
         name: DataTypes.STRING,
-        dob: DataTypes.STRING,
-        wilayah: DataTypes.STRING,
-        dapil: DataTypes.STRING,
-        kabupaten: DataTypes.STRING  
+        dob: DataTypes.STRING
     })
     DashboardUser.associate = (models) => {
       DashboardUser.belongsTo(models.Role, { foreignKey: 'RoleId' })
+      DashboardUser.belongsTo(models.Wilayah, { foreignKey: 'WilayahId' })
+      DashboardUser.belongsTo(models.Kabupaten, { foreignKey: 'KabupatenId' })
+      DashboardUser.belongsTo(models.Dapil, { foreignKey: 'DapilId' })
     }
     return DashboardUser
 }

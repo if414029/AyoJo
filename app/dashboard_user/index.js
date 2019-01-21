@@ -4,6 +4,21 @@ const response = require('../../lib/newResponse')
 const middle = require('../../lib/authMiddleware')
 const router = express.Router()
 
+router.get('/wilayah', async(req, res) => {
+    req.body.query = req.query
+    const result = await dashboardUser.getWilayah(req.body)
+    return response(res, result.code, result.data)
+})
+router.get('/kabupaten', async(req, res) => {
+    req.body.query = req.query
+    const result = await dashboardUser.getKabupaten(req.body)
+    return response(res, result.code, result.data)
+})
+router.get('/dapil', async(req, res) => {
+    req.body.query = req.query
+    const result = await dashboardUser.getDapil(req.body)
+    return response(res, result.code, result.data)
+})
 router.get('/', async(req, res) => {
     req.body.query = req.query
     const result = await dashboardUser.get(req.body)

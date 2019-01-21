@@ -8,7 +8,10 @@ const models = {
     DashboardToken: sequelize.import('../app/dashboard_token/dashboard_token_model'),
     DashboardUser: sequelize.import('../app/dashboard_user/dashboard_user_model'),
     Report: sequelize.import('../app/report/report_model'),
-    Role: sequelize.import('../app/dashboard_user/role_model')
+    Role: sequelize.import('../app/dashboard_user/role_model'),
+    Wilayah: sequelize.import('../app/dashboard_user/wilayah_model'),
+    Kabupaten: sequelize.import('../app/dashboard_user/kabupaten_model'),
+    Dapil: sequelize.import('../app/dashboard_user/dapil_model')
 }
 
 Object.keys(models).forEach((modelName) => {

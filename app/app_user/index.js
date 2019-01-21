@@ -33,12 +33,12 @@ router.post('/cekStatus', async(req, res) => {
     return response(res, result.code, result.data)
 })
 router.put('/:id', async(req, res) => {
-    req.body.appUserId = req.params.id
+    req.body.AppUserId = req.params.id
     const result = await appUser.edit(req.body)
     return response(res, result.code, result.data)
 })
 router.delete('/:id', async(req, res) => {
-    req.body.appUserId = req.params.id
+    req.body.AppUserId = req.params.id
     const result = await appUser.delete(req.body)
     return response(res, result.code, result.data)
 })

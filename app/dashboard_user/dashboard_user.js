@@ -4,14 +4,65 @@ const generatedId = require('../../lib/idGenerator')
 const jwtToken = require('../../lib/jwtGenerator')
 
 
-const { DashboardUser, Role, DashboardToken } = models
+const { DashboardUser, Role, DashboardToken, Wilayah, Kabupaten, Dapil } = models
 
 module.exports = {
+    getWilayah: async (dashboardObj) => {
+        try {
+            const { query } = dashboardObj
+            const wilayah = await Wilayah.findAll()
+
+            return { code: 200, data: wilayah }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    getKabupaten: async (dashboardObj) => {
+        try {
+            const { query } = dashboardObj
+            const { filterbywilayah } = query
+
+            let sequelizeQuery = {
+                where: { } 
+            }
+
+            if(filterbywilayah) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { WilayahId: filterbywilayah } )
+            }
+
+            const kabupatens = await Kabupaten.findAll(sequelizeQuery)
+
+            return { code: 200, data: kabupatens }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    getDapil: async (dashboardObj) => {
+        try {
+            const { query } = dashboardObj
+            const { filterbykabupaten } = query
+
+            let sequelizeQuery = {
+                where: { } 
+            }
+
+            if(filterbykabupaten) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { KabupatenId: filterbykabupaten } )
+            }
+
+            const dapils = await Dapil.findAll(sequelizeQuery)
+
+            return { code: 200, data: dapils }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
     get: async (dashboardObj) => {
         try {
             const { query } = dashboardObj
             const {
-                limit, sortby, order, page, searchbyname
+                limit, sortby, order, page, searchbyname, filterbywilayah,
+                filterbykabupaten, filterbydapil
             } = query
 
             const pageNum = Number(page) 
@@ -19,7 +70,10 @@ module.exports = {
             let sequelizeQuery = {
                 distinct: true,
                 include: [
-                  { model: Role }
+                  { model: Role },
+                  { model: Wilayah },
+                  { model: Kabupaten },
+                  { model: Dapil }
                 ],
                 where: { 
                     RoleId: { $ne: 'jmkt41ot' }
@@ -35,6 +89,15 @@ module.exports = {
             if(searchbyname) {
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { name: { $like: `%${searchbyname}%` } } )
             }
+            if(filterbywilayah) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { WilayahId: filterbywilayah } )
+            }
+            if(filterbykabupaten) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { KabupatenId: filterbykabupaten } )
+            }
+            if(filterbydapil) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { DapilId: filterbydapil } )
+            }
             if(lim == 'all'){
                 delete sequelizeQuery.limit
             }
@@ -46,7 +109,6 @@ module.exports = {
                 await result.rows.push(dashboardObject)
             })
             await Promise.all(dashboardProcess)
-
             return { code: 200, data: Object.assign(result, { page: Math.ceil(result.count / lim) || 1 }) }
         } catch (e) {
             return { code: 500, data: e.message }
@@ -54,20 +116,36 @@ module.exports = {
     },
     create: async (dashboardObj) => {
         try {
-            const { wilayah, dapil, kabupaten, name, dob, RoleId } = dashboardObj
+            const { WilayahId, DapilId, KabupatenId, name, dob } = dashboardObj
             const id = generatedId() 
+            const generateNumber = Math.floor(Math.random() * 9) + 1 
             const splitUsername = name.split(' ')
             const splitDob = dob.split('-')
-            const fixUsername = splitUsername[0] + splitDob[2]
+            const fixUsername = splitUsername[0] + splitDob[2] + generateNumber
+            
+            const wilayah = await Wilayah.findById(WilayahId)
+            const kabupaten = await Kabupaten.findById(KabupatenId)
+            const dapil = await Dapil.findById(DapilId)
+
+            if(!wilayah) {
+                return { code: 400, data: "Wilayah Id not found" }
+            }
+            if(!kabupaten) {
+                return { code: 400, data: "Wilayah Id not found" }
+            }
+            if(!dapil) {
+                return { code: 400, data: "Wilayah Id not found" }
+            }
+
             const newDashboardUser = await DashboardUser.create({
                 id,
                 username: fixUsername.toLowerCase(),
                 password: generatedId(),
                 name,
                 dob,
-                wilayah,
-                dapil,
-                kabupaten,
+                WilayahId,
+                DapilId,
+                KabupatenId,
                 RoleId: 'jmdsa4lk'
             })
             return { code: 200, data: newDashboardUser }
@@ -154,18 +232,47 @@ module.exports = {
             return { code: 200, data: "You're Login Before" }
         } catch (e) {
             return { code: 500, data: e.message }
-        }
+        }jmaxa451
     },
     edit: async (dashboardObj) => {
         try {
+            const { dashboardUserId, WilayahId, DapilId, KabupatenId, name, dob } = dashboardObj
+            const dashboard = await DashboardUser.findById(dashboardUserId)
+            
+            if(!dashboard) {
+                return { code: 400, data: "Invalid Dashboard User Id " }
+            }
 
+            const wilayah = await Wilayah.findById(WilayahId)
+            const kabupaten = await Kabupaten.findById(KabupatenId)
+            const dapil = await Dapil.findById(DapilId)
+
+            if(!wilayah) {
+                return { code: 400, data: "Wilayah Id not found" }
+            }
+            if(!kabupaten) {
+                return { code: 400, data: "Wilayah Id not found" }
+            }
+            if(!dapil) {
+                return { code: 400, data: "Wilayah Id not found" }
+            }
+
+            const result = await dashboard.update({
+                name,
+                dob,
+                WilayahId,
+                DapilId,
+                KabupatenId
+            })
+
+            return { code: 200, data: result }
         } catch (e) {
             return { code: 500, data: e.message }
         }
     },
     delete: async (dashboardObj) => {
         try {
-
+            const { dashboardUserId } = dashboardObj
         } catch (e) {
             return { code: 500, data: e.message }
         }
@@ -188,9 +295,6 @@ async function getDashboardDetail(dashboardId, dashboard) {
       username: dashboard.username,
       password: dashboard.password,
       name: dashboard.name,
-      wilayah: dashboard.wilayah,
-      dapil: dashboard.dapil,
-      kabupaten: dashboard.kabupaten,
       dateOfBirth: dashboard.dob,
       createdAt: dashboard.createdAt,
     }
@@ -198,6 +302,19 @@ async function getDashboardDetail(dashboardId, dashboard) {
       dashboardObj.roleId = dashboard.Role.id
       dashboardObj.roleName = dashboard.Role.name
     }
+    if(dashboard.Wilayah){
+        dashboardObj.WilayahId = dashboard.Wilayah.id
+        dashboardObj.WilayahName = dashboard.Wilayah.name
+    }
+    if(dashboard.Kabupaten){
+        dashboardObj.KabupatenId = dashboard.Kabupaten.id
+        dashboardObj.KabupatenName = dashboard.Kabupaten.name
+    }
+    if(dashboard.Dapil){
+        dashboardObj.DapilId = dashboard.Dapil.id
+        dashboardObj.DapilName = dashboard.Dapil.name
+    }  
+    
     
     return dashboardObj
   }

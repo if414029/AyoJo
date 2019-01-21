@@ -77,10 +77,11 @@ module.exports = {
         try {
             const { username, password, name, dob, CoordinatorId } = appObj
             const id = generatedId() 
+            const generateNumber = Math.floor(Math.random() * 9) + 1
             const coordinator = await DashboardUser.findById(CoordinatorId)
             const splitUsername = name.split(' ')
-            const splitDob = dob.slice(0,3)
-            const fixUsername = splitUsername[0] + splitDob
+            const splitDob = dob.slice(0,2)
+            const fixUsername = splitUsername[0] + splitDob + generateNumber
             if(!coordinator) {
                 return { code: 404, data: 'Invalid Coordinator Id' }
             }
@@ -180,7 +181,25 @@ module.exports = {
     },
     edit: async (appObj) => {
         try {
+            const { AppUserId, name, dob, CoordinatorId } = appObj
+            const app = await AppUser.findById(AppUserId)
 
+            if(!app) {
+                return { code: 400, data: "Invalid App User Id" }
+            }
+
+            const coordinator = await DashboardUser.findById(CoordinatorId)
+            if(!coordinator) {
+                return { code: 404, data: 'Invalid Coordinator Id' }
+            }
+
+            const result = await app.update({
+                name,
+                dob,
+                CoordinatorId: coordinator.id
+            })
+
+            return { code: 200, data: result }
         } catch (e) {
             return { code: 500, data: e.message }
         }
