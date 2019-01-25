@@ -206,7 +206,16 @@ module.exports = {
     },
     delete: async (appObj) => {
         try {
+            const { AppUserId } = appObj
+            const app = await AppUser.findById(AppUserId)
+            if(!app) {
+                return { code: 404, data: "App User Id Invalid" }
+            }
 
+            await AppToken.destroy({ where: { AppUserId: app.id } })
+            await Report.destroy({ where: { AppUserId: app.id } })
+            await app.destroy()
+            return { code: 200, data: "Data has been deleted" }
         } catch (e) {
             return { code: 500, data: e.message }
         }

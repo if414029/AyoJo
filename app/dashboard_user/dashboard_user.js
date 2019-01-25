@@ -4,7 +4,7 @@ const generatedId = require('../../lib/idGenerator')
 const jwtToken = require('../../lib/jwtGenerator')
 
 
-const { DashboardUser, Role, DashboardToken, Wilayah, Kabupaten, Dapil } = models
+const { DashboardUser, Role, DashboardToken, Wilayah, Kabupaten, Dapil, AppToken, AppUser, Report } = models
 
 module.exports = {
     getWilayah: async (dashboardObj) => {
@@ -273,6 +273,22 @@ module.exports = {
     delete: async (dashboardObj) => {
         try {
             const { dashboardUserId } = dashboardObj
+            const dashboard = await DashboardUser.findById(dashboardUserId)
+            if(!dashboard) {
+                return { code: 404, data: "Dashboard User Id Invalid" }
+            }
+
+            await DashboardToken.destroy({ where: { DashboardUserId: dashboard.id } })
+            const app = await AppUser.findAll({
+                where: {
+                    CoordinatorId: dashboard.id
+                }
+            })
+            await AppToken.destroy({ where: { AppUserId: app.map(val => val.id) } })
+            await Report.destroy({ where: { AppUserId: app.map(val => val.id) } })
+            await AppUser.destroy({ where: { id: app.map(val => val.id) } })
+            await dashboard.destroy()
+            return { code: 200, data: "Data has been deleted." }
         } catch (e) {
             return { code: 500, data: e.message }
         }
