@@ -18,7 +18,8 @@ module.exports = {
         try {
             const { DashboardUserId, query } = appObj
             const {
-                limit, sortby, order, page, searchbyname, filterbycoordinator, searchbycoordinator
+                limit, sortby, order, page, searchbyname, filterbycoordinator, searchbycoordinator,
+                filterbywilayah, filterbykabupaten, filterbydapil
             } = query
             const dashboard = await DashboardUser.findById(DashboardUserId)
             const pageNum = Number(page) 
@@ -50,6 +51,15 @@ module.exports = {
             }
             if(filterbycoordinator) {
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { CoordinatorId : filterbycoordinator } )
+            }
+            if(filterbywilayah) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$DashboardUser.WilayahId$' : filterbywilayah } )
+            }
+            if(filterbykabupaten) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$DashboardUser.KabupatenId$' : filterbykabupaten } )
+            }
+            if(filterbydapil) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$DashboardUser.DapilId$' : filterbydapil } )
             }
             if(lim == 'all'){
                 delete sequelizeQuery.limit

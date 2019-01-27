@@ -128,11 +128,11 @@ module.exports = {
                 delete sequelizeQuery.limit
             }
             if (afterId) {
-                sequelizeQuery.where = {
+                sequelizeQuery.where = sequelizeQuery.where = Object.assign(sequelizeQuery.where, {
                     id : { $lt: afterId },
-                }
+                })
                 if(order=='ASC'){
-                    sequelizeQuery.where.id = { $gt: afterId }
+                    sequelizeQuery.where.id = sequelizeQuery.where = Object.assign(sequelizeQuery.where, { $gt: afterId } )
                 } 
             }
             
@@ -336,7 +336,7 @@ module.exports = {
             })
             const findNew = await DashboardToken.find({
                 where: {
-                    AppUserId: findOld.AppUserId
+                    DashboardUserId: findOld.DashboardUserId
                 },
                 order: [
                     ['createdAt', 'DESC'],
