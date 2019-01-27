@@ -186,10 +186,30 @@ module.exports = {
                 kecamatan: dataGeo[0].administrativeLevels.level3long,
                 kabupaten: dataGeo[0].administrativeLevels.level2long,
                 provinsi: dataGeo[0].administrativeLevels.level1long,
-                AppUserId: app.id
+                AppUserId: app.id,
+                status: false
             })
 
             return { code: 200, data: newReport}
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    verifikasi: async (reportObj) => {
+        try {
+            const { latKoordinator, lngKoordinator, reportId } = reportObj
+            const report = await Report.findById(reportId)
+            if(!report) {
+                return { code: 401, data: "Invalid Report Id" }
+            }
+
+            await report.update({
+                status: true,
+                tglVerifikasi: Date.now(),
+                latKoordinator,
+                lngKoordinator
+            })
+            return { code:200, data: report }
         } catch (e) {
             return { code: 500, data: e.message }
         }
@@ -239,7 +259,11 @@ async function getReportDetail(reportId, report) {
       kabupaten: report.kabupaten,
       provinsi: report.provinsi,
       createdAt: report.createdAt,
-      updatedAt: report.updatedAt
+      updatedAt: report.updatedAt,
+      status: report.status,
+      latKoordinator: report.latKoordinator,
+      lngKoordinator: report.lngKoordinator,
+      tglVerifikasi: report.tglVerifikasi
     }
     if(report.AppUser){
       reportObj.AppUserId = report.AppUser.id

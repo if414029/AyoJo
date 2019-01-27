@@ -3,6 +3,7 @@ const dashboardUser = require('./dashboard_user.js')
 const response = require('../../lib/newResponse')
 const middle = require('../../lib/authMiddleware')
 const router = express.Router()
+const { authDashboard } = middle
 
 router.get('/wilayah', async(req, res) => {
     req.body.query = req.query
@@ -17,6 +18,23 @@ router.get('/kabupaten', async(req, res) => {
 router.get('/dapil', async(req, res) => {
     req.body.query = req.query
     const result = await dashboardUser.getDapil(req.body)
+    return response(res, result.code, result.data)
+})
+router.get('/listSurveyor', authDashboard, async(req, res) => {
+    req.body.query = req.query
+    req.body.DashboardUserId = req.DashboardUserId
+    const result = await dashboardUser.listSurveyor(req.body)
+    return response(res, result.code, result.data)
+})
+router.get('/listReport/:id', async(req, res) => {
+    req.body.query = req.query
+    req.body.AppUserId = req.params.id
+    const result = await dashboardUser.listReport(req.body)
+    return response(res, result.code, result.data)
+})
+router.get('/detailReport/:id', async(req, res) => {
+    req.body.reportId = req.params.id
+    const result = await dashboardUser.getDetailReport(req.body)
     return response(res, result.code, result.data)
 })
 router.get('/', async(req, res) => {

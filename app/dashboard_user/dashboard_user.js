@@ -2,7 +2,7 @@ const response = require('../../lib/newResponse')
 const models = require('../../config/models')
 const generatedId = require('../../lib/idGenerator')    
 const jwtToken = require('../../lib/jwtGenerator')
-
+const moment = require('moment')
 
 const { DashboardUser, Role, DashboardToken, Wilayah, Kabupaten, Dapil, AppToken, AppUser, Report } = models
 
@@ -53,6 +53,122 @@ module.exports = {
             const dapils = await Dapil.findAll(sequelizeQuery)
 
             return { code: 200, data: dapils }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    listSurveyor: async (appObj) => {
+        try {
+            const { DashboardUserId, query } = appObj
+            const {
+                limit, sortby, order, afterId,
+            } = query
+            const dashboard = await DashboardUser.findById(DashboardUserId)
+            const lim = limit == 'all' ? 'all' : limit ? Number(limit) : 10
+
+            let sequelizeQuery = {
+                distinct: true,
+                include: [
+                  { model: DashboardUser }
+                ],
+                where: {
+                    CoordinatorId: dashboard.id
+                },
+                order: [
+                  [sortby || 'id' , order || 'DESC']
+                ],
+                limit: lim 
+            }
+
+            if (afterId) {
+                sequelizeQuery.where = {
+                    id : { $lt: afterId },
+                }
+                if(order=='ASC'){
+                    sequelizeQuery.where.id = { $gt: afterId }
+                } 
+            }
+
+            if(lim == 'all'){
+                delete sequelizeQuery.limit
+            }
+            
+            const apps = await AppUser.findAndCountAll(sequelizeQuery)
+            const result = { count: apps.count, page: Math.ceil(apps.count / lim), rows: [] }
+            let appProcess = await apps.rows.map(async (app) => {
+                let allReport = await Report.findAndCountAll({
+                    where: {
+                        AppUserId: app.id
+                    }
+                })
+                let appObject = await getAppDetail(app.id, app, allReport.count)
+                await result.rows.push(appObject)
+            })
+            await Promise.all(appProcess)
+
+            return { code: 200, data: Object.assign(result, { page: Math.ceil(result.count / lim) || 1 }) }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    listReport: async (reportObj) => {
+        try {
+            const { query, AppUserId } = reportObj
+            const { limit, sortby, order, afterId, filterbydate } = query
+            const lim = limit ? Number(limit) : 10
+            const app = await AppUser.findById(AppUserId)
+            let sequelizeQuery = {
+                where: { 
+                    AppUserId: app.id 
+                },
+                order: [[sortby || 'id', order || 'DESC']],
+                limit: lim
+            }
+            if(lim == 'all'){
+                delete sequelizeQuery.limit
+            }
+            if (afterId) {
+                sequelizeQuery.where = {
+                    id : { $lt: afterId },
+                }
+                if(order=='ASC'){
+                    sequelizeQuery.where.id = { $gt: afterId }
+                } 
+            }
+            
+            if (filterbydate) {
+                if(filterbydate === 'Day') {
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('day'),
+                        $lt: moment().endOf('day')
+                    } } )
+                } else if (filterbydate === 'Week') {
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('week'),
+                        $lt: moment().endOf('week')
+                    } } )
+                } else if (filterbydate === 'Month') {
+                    sequelizeQuery.where = Object.assign(sequelizeQuery.where, { createdAt: {
+                        $gt: moment().startOf('month'),
+                        $lt: moment().endOf('month')
+                    } } )
+                }
+            }
+            const reports = await Report.findAndCountAll(sequelizeQuery)
+            const result = { count: reports.count, page: Math.ceil(reports.count / lim), rows: reports.rows }
+            return { code: 200, data: result }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    getDetailReport: async (reportObj) => {
+        try {
+            const { reportId } = reportObj
+            const report = await Report.findById(reportId)
+            if(!report) {
+                return { code: 401, data: "Invalid Report Id" }
+            }
+            return { code:200, data: report }
         } catch (e) {
             return { code: 500, data: e.message }
         }
@@ -335,3 +451,30 @@ async function getDashboardDetail(dashboardId, dashboard) {
     return dashboardObj
   }
   
+  async function getAppDetail(appId, app, countReport) {
+    if(!app) {
+      app = await AppUser.findOne({
+        where: {
+          id: appId
+        },
+        include: [
+          { model: DashboardUser },
+        ]
+      })
+    }
+    const appObj = {
+      id: app.id,
+      username: app.username,
+      password: app.password,
+      name: app.name,
+      dateOfBirth: app.dob,
+      createdAt: app.createdAt,
+      totalMarker: countReport
+    }
+    if(app.DashboardUser){
+      appObj.coordinatorId = app.DashboardUser.id
+      appObj.coordinatorName = app.DashboardUser.name
+    }
+    
+    return appObj
+}

@@ -34,6 +34,11 @@ router.post('/', authApp, async(req, res) => {
     const result = await report.create(req.body)
     return response(res, result.code, result.data)
 })
+router.put('/verifikasi/:id', async(req, res) => {
+    req.body.reportId = req.params.id
+    const result = await report.verifikasi(req.body)
+    return response(res, result.code, result.data)
+})
 router.put('/:id', async(req, res) => {
     req.body.reportId = req.params.id
     const result = await report.edit(req.body)

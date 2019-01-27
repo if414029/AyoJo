@@ -19,7 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         kelurahan: DataTypes.STRING,
         kecamatan: DataTypes.STRING,
         kabupaten: DataTypes.STRING,
-        provinsi: DataTypes.STRING
+        provinsi: DataTypes.STRING,
+        status: DataTypes.BOOLEAN,
+        latKoordinator: DataTypes.STRING,
+        lngKoordinator: DataTypes.STRING,
+        tglVerifikasi: DataTypes.DATE
     })
     Report.associate = (models) => {
         Report.belongsTo(models.AppUser, { foreignKey: 'AppUserId' })
