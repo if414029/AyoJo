@@ -82,13 +82,15 @@ module.exports = {
         try {
             const { query, DashboardUserId } = reportObj
             const { limit, sortby, page, order, filterbydate, filterbysurveyor, searchbykelurahan,
-                    searchbykecamatan, searchbykabupaten, searchbyprovinsi } = query
+                    searchbykecamatan, searchbykabupaten, searchbyprovinsi, filterbywilayah,
+                    filterbykabupaten, filterbydapil 
+                } = query
             const pageNum = Number(page) 
             const lim = limit == 'all' ? 'all' : limit ? Number(limit) : 10
             
             let sequelizeQuery = {
                 include: [
-                    { model: AppUser }
+                    { model: AppUser, include: [{ model: DashboardUser }] }
                 ], 
                 where: { },
                 order: [[sortby || 'id', order || 'DESC']],
@@ -140,6 +142,16 @@ module.exports = {
             }
             if(searchbyprovinsi) {
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { provinsi: { $like: `%${searchbyprovinsi}%` } } )
+            }
+
+            if(filterbywilayah) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$AppUser.DashboardUser.WilayahId$': filterbywilayah } )
+            }
+            if(filterbykabupaten) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$AppUser.DashboardUser.KabupatenId$': filterbykabupaten } )
+            }
+            if(filterbydapil) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$AppUser.DashboardUser.DapilId$': filterbydapil } )
             }
 
             const reports = await Report.findAndCountAll(sequelizeQuery)

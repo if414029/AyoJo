@@ -234,6 +234,9 @@ module.exports = {
         try {
             const { WilayahId, DapilId, KabupatenId, name, dob } = dashboardObj
             const id = generatedId() 
+            for (var i =0 ; i<35; i++){
+                console.log(generatedId())
+            }
             const generateNumber = Math.floor(Math.random() * 9) + 1 
             const splitUsername = name.split(' ')
             const splitDob = dob.split('-')
