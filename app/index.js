@@ -8,6 +8,8 @@ const appUsers = require('./app_user')
 const uploads = require('./upload/uploads')
 const dashboardUsers = require('./dashboard_user')
 const reports = require('./report')
+const otherSurveyors = require('./other_surveyor')
+const otherReports = require('./other_report')
 require('dotenv').config({})
 
 const app = express()
@@ -29,6 +31,8 @@ app.use(['/api/uploads', '/api/uploads'], uploads)
 app.use(['/api/appUsers', '/api/appUsers'], appUsers)
 app.use(['/api/dashboardUsers', '/api/dashboardUsers'], dashboardUsers)
 app.use(['/api/reports', '/api/reports'], reports)
+app.use(['/api/otherSurveyors', '/api/otherSurveyors'], otherSurveyors)
+app.use(['/api/otherReports', '/api/otherReports'], otherReports)
 
 // handling unhandled rejection
 process.on('unhandledRejection', (reason) => {

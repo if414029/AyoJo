@@ -3,33 +3,29 @@ const models = require('../../config/models')
 const generatedId = require('../../lib/idGenerator')      
 const jwtToken = require('../../lib/jwtGenerator') 
 
-const { AppUser, DashboardUser, AppToken, Report } = models
+const { OtherSurveyor, DashboardUser, OtherSurveyorToken, OtherReport } = models
 
 module.exports = {
     getAllUser: async(appObj) => {
         try {
-            const allUser = await AppUser.findAndCountAll()
-            return { code: 200, data: allUser.count }
+            const allOtherSurveyor = await OtherSurveyor.findAndCountAll()
+            return { code: 200, data: allOtherSurveyor.count }
         } catch (e) {
             return { code: 500, data: e.message }
         }
     },
     get: async (appObj) => {
         try {
-            const { DashboardUserId, query } = appObj
+            const { query } = appObj
             const {
-                limit, sortby, order, page, searchbyname, filterbycoordinator, searchbycoordinator,
-                filterbywilayah, filterbykabupaten, filterbydapil
+                limit, sortby, order, page
             } = query
-            const dashboard = await DashboardUser.findById(DashboardUserId)
+            
             const pageNum = Number(page) 
             const lim = limit == 'all' ? 'all' : limit ? Number(limit) : 10
             
             let sequelizeQuery = {
                 distinct: true,
-                include: [
-                  { model: DashboardUser }
-                ],
                 where: { },
                 order: [
                   [sortby || 'id' , order || 'DESC']
@@ -39,38 +35,17 @@ module.exports = {
             if(pageNum > 1) {
                 sequelizeQuery.limit = [(pageNum-1) * lim || 0, lim] 
             }
-
-            if(dashboard.RoleId != 'jmkt41ot'){
-                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { CoordinatorId: dashboard.id } )
-            }
-            if(searchbyname) {
-                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { name: { $like: `%${searchbyname}%` } } )
-            }
-            if(searchbycoordinator) {
-                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$DashboardUser.name$': { $like: `%${searchbycoordinator}%` } } )
-            }
-            if(filterbycoordinator) {
-                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { CoordinatorId : filterbycoordinator } )
-            }
-            if(filterbywilayah) {
-                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$DashboardUser.WilayahId$' : filterbywilayah } )
-            }
-            if(filterbykabupaten) {
-                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$DashboardUser.KabupatenId$' : filterbykabupaten } )
-            }
-            if(filterbydapil) {
-                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$DashboardUser.DapilId$' : filterbydapil } )
-            }
+            
             if(lim == 'all'){
                 delete sequelizeQuery.limit
             }
             
-            const apps = await AppUser.findAndCountAll(sequelizeQuery)
+            const apps = await OtherSurveyor.findAndCountAll(sequelizeQuery)
             const result = { count: apps.count, page: Math.ceil(apps.count / lim), rows: [] }
             let appProcess = await apps.rows.map(async (app) => {
-                let allReport = await Report.findAndCountAll({
+                let allReport = await OtherReport.findAndCountAll({
                     where: {
-                        AppUserId: app.id
+                        OtherSurveyorId: app.id
                     }
                 })
                 let appObject = await getAppDetail(app.id, app, allReport.count)
@@ -85,23 +60,13 @@ module.exports = {
     },
     create: async (appObj) => {
         try {
-            const { username, password, name, dob, CoordinatorId } = appObj
+            const { username, password } = appObj
             const id = generatedId() 
-            const generateNumber = Math.floor(Math.random() * 9) + 1
-            const coordinator = await DashboardUser.findById(CoordinatorId)
-            const splitUsername = name.split(' ')
-            const splitDob = dob.slice(0,2)
-            const fixUsername = splitUsername[0] + splitDob + generateNumber
-            if(!coordinator) {
-                return { code: 404, data: 'Invalid Coordinator Id' }
-            }
-            const newAppUser = await AppUser.create({
+            
+            const newAppUser = await OtherSurveyor.create({
                 id,
-                username: fixUsername.toLowerCase(),
+                username: generatedId(),
                 password: generatedId(),
-                name,
-                dob,
-                CoordinatorId: coordinator.id
             })
             return { code: 200, data: newAppUser }
         } catch (e) {
@@ -117,28 +82,21 @@ module.exports = {
             if (!password) {
                 return { code: 400, data: 'password must not be empty' }
             }
-            const app = await AppUser.findOne({ where: { username } })
+            const app = await OtherSurveyor.findOne({ where: { username } })
             if (!app) {
                 return { code: 401, data: 'username or password is not valid' }
             }
 
             if(password === app.password){
-                const coordinator = await DashboardUser.findById(app.CoordinatorId)
                 const id = generatedId() 
                 const data = {
                     username: app.username,
-                    name: app.name,
-                    dob: app.dob,
-                    coordinatorId: coordinator.id,
-                    coordinatorName: coordinator.name
                 }
 
                 const header = await jwtToken(
                     { 
                         id: app.id, 
-                        username: app.username, 
-                        coordinatorName: coordinator.name, 
-                        coordinatorId: coordinator.id 
+                        username: app.username 
                     },
                     process.env.JWT_SECRET_APP, 
                     {},
@@ -146,7 +104,7 @@ module.exports = {
         
                 const result = { code: 200, data, header }
                 
-                await AppToken.create({
+                await OtherSurveyorToken.create({
                     id,
                     jwtToken: header,
                     AppUserId: app.id
@@ -168,14 +126,14 @@ module.exports = {
     cekStatus: async (appObj) => {
         try {
             const { oldToken } = appObj
-            const findOld = await AppToken.find({
+            const findOld = await OtherSurveyorToken.find({
                 where: {
                     jwtToken: oldToken
                 }
             })
-            const findNew = await AppToken.find({
+            const findNew = await OtherSurveyorToken.find({
                 where: {
-                    AppUserId: findOld.AppUserId
+                    OtherSurveyorId: findOld.OtherSurveyorId
                 },
                 order: [
                     ['createdAt', 'DESC'],
@@ -191,22 +149,16 @@ module.exports = {
     },
     edit: async (appObj) => {
         try {
-            const { AppUserId, name, dob, CoordinatorId } = appObj
-            const app = await AppUser.findById(AppUserId)
+            const { OtherSurveyorId, username, password } = appObj
+            const app = await OtherSurveyor.findById(OtherSurveyorId)
 
             if(!app) {
                 return { code: 400, data: "Invalid App User Id" }
             }
 
-            const coordinator = await DashboardUser.findById(CoordinatorId)
-            if(!coordinator) {
-                return { code: 404, data: 'Invalid Coordinator Id' }
-            }
-
             const result = await app.update({
-                name,
-                dob,
-                CoordinatorId: coordinator.id
+                username,
+                password,
             })
 
             return { code: 200, data: result }
@@ -216,14 +168,14 @@ module.exports = {
     },
     delete: async (appObj) => {
         try {
-            const { AppUserId } = appObj
-            const app = await AppUser.findById(AppUserId)
+            const { OtherSurveyorId } = appObj
+            const app = await OtherSurveyor.findById(OtherSurveyorId)
             if(!app) {
                 return { code: 404, data: "App User Id Invalid" }
             }
 
-            await AppToken.destroy({ where: { AppUserId: app.id } })
-            await Report.destroy({ where: { AppUserId: app.id } })
+            await OtherSurveyorToken.destroy({ where: { OtherSurveyorId: app.id } })
+            await OtherReport.destroy({ where: { OtherSurveyorId: app.id } })
             await app.destroy()
             return { code: 200, data: "Data has been deleted" }
         } catch (e) {
@@ -234,27 +186,18 @@ module.exports = {
 
 async function getAppDetail(appId, app, countReport) {
     if(!app) {
-      app = await AppUser.findOne({
+      app = await OtherSurveyor.findOne({
         where: {
           id: appId
-        },
-        include: [
-          { model: DashboardUser },
-        ]
+        }
       })
     }
     const appObj = {
       id: app.id,
       username: app.username,
       password: app.password,
-      name: app.name,
-      dateOfBirth: app.dob,
       createdAt: app.createdAt,
       totalMarker: countReport
-    }
-    if(app.DashboardUser){
-      appObj.coordinatorId = app.DashboardUser.id
-      appObj.coordinatorName = app.DashboardUser.name
     }
     
     return appObj

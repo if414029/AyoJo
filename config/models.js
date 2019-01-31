@@ -11,7 +11,10 @@ const models = {
     Role: sequelize.import('../app/dashboard_user/role_model'),
     Wilayah: sequelize.import('../app/dashboard_user/wilayah_model'),
     Kabupaten: sequelize.import('../app/dashboard_user/kabupaten_model'),
-    Dapil: sequelize.import('../app/dashboard_user/dapil_model')
+    Dapil: sequelize.import('../app/dashboard_user/dapil_model'),
+    OtherSurveyor: sequelize.import('../app/other_surveyor/other_surveyor_model'),
+    OtherSurveyorToken: sequelize.import('../app/other_surveyor_token/other_surveyor_token_model'),
+    OtherReport: sequelize.import('../app/other_report/other_report_model')
 }
 
 Object.keys(models).forEach((modelName) => {
