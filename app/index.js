@@ -15,7 +15,7 @@ require('dotenv').config({})
 const app = express()
 
 // server use
-app.use(cors('*'))
+app.use(cors())
 app.use(cors({
   exposedHeaders: ['authorization', 'RefreshToken', 'UserToken'],
 }))

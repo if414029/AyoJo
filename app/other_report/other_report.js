@@ -150,7 +150,11 @@ module.exports = {
 
             const totalReport = await OtherReport.findAndCountAll({
                 where: {
-                    OtherSurveyorId: app.id
+                    OtherSurveyorId: app.id,
+                    createdAt: {
+                        $gt: moment().startOf('day'),
+                        $lt: moment().endOf('day')
+                    }
                 }
             })
             

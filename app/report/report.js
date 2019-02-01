@@ -180,7 +180,11 @@ module.exports = {
             const app = await AppUser.findById(AppUserId)
             const totalReport = await Report.findAndCountAll({
                 where: {
-                    AppuserId: app.id
+                    AppuserId: app.id,
+                    createdAt: {
+                        $gt: moment().startOf('day'),
+                        $lt: moment().endOf('day')
+                    }
                 }
             })
             
