@@ -337,6 +337,9 @@ module.exports = {
                     jwtToken: oldToken
                 }
             })
+            if(!findOld) {
+                return { code: 400, data: "Invalid Token" }
+            }
             const findNew = await DashboardToken.find({
                 where: {
                     DashboardUserId: findOld.DashboardUserId

@@ -178,6 +178,16 @@ module.exports = {
                 return { code: 400, data: "Required field must be filled" }
             }
             const app = await AppUser.findById(AppUserId)
+            const totalReport = await Report.findAndCountAll({
+                where: {
+                    AppuserId: app.id
+                }
+            })
+            
+            if(totalReport.rows.length >= 10) {
+                return { code: 500, data: "You can make report 10 per day" }
+            }
+
             const id = generatedId()
             const dataGeo = await nodeGeocoder.reverse({lat:lat, lon:lng})
 

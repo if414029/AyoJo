@@ -87,7 +87,7 @@ module.exports = {
             
             let sequelizeQuery = {
                 include: [
-                    { model: AppUser }
+                    { model: OtherSurveyor }
                 ], 
                 where: { },
                 order: [[sortby || 'id', order || 'DESC']],
@@ -147,6 +147,17 @@ module.exports = {
                 return { code: 400, data: "Required field must be filled" }
             }
             const app = await OtherSurveyor.findById(OtherSurveyorId)
+
+            const totalReport = await OtherReport.findAndCountAll({
+                where: {
+                    OtherSurveyorId: app.id
+                }
+            })
+            
+            if(totalReport.rows.length >= 10) {
+                return { code: 500, data: "You can make report 10 per day" }
+            }
+            
             const id = generatedId()
             const dataGeo = await nodeGeocoder.reverse({lat:lat, lon:lng})
 

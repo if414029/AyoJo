@@ -25,8 +25,7 @@ module.exports = {
             const lim = limit == 'all' ? 'all' : limit ? Number(limit) : 10
             
             let sequelizeQuery = {
-                distinct: true,
-                where: { },
+                // distinct: true,
                 order: [
                   [sortby || 'id' , order || 'DESC']
                 ],
@@ -35,13 +34,14 @@ module.exports = {
             if(pageNum > 1) {
                 sequelizeQuery.limit = [(pageNum-1) * lim || 0, lim] 
             }
-            
+
             if(lim == 'all'){
                 delete sequelizeQuery.limit
             }
             
             const apps = await OtherSurveyor.findAndCountAll(sequelizeQuery)
             const result = { count: apps.count, page: Math.ceil(apps.count / lim), rows: [] }
+
             let appProcess = await apps.rows.map(async (app) => {
                 let allReport = await OtherReport.findAndCountAll({
                     where: {
@@ -107,7 +107,7 @@ module.exports = {
                 await OtherSurveyorToken.create({
                     id,
                     jwtToken: header,
-                    AppUserId: app.id
+                    OtherSurveyorId: app.id
                 })
                 return result
             }
