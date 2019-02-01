@@ -291,6 +291,10 @@ async function getReportDetail(reportId, report) {
       reportObj.AppUserId = report.AppUser.id
       reportObj.AppUserName = report.AppUser.name
     }
+    if(report.AppUser.DashboardUser){
+      reportObj.CoordinatorId = report.AppUser.DashboardUser.id
+      reportObj.CoordinatorName = report.AppUser.DashboardUser.name
+    }
     
     return reportObj
 }
