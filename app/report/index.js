@@ -3,10 +3,11 @@ const report = require('./report')
 const response = require('../../lib/newResponse')
 const middle = require('../../lib/authMiddleware')
 const router = express.Router()
+var cors = require('cors')
 const { authApp, authDashboard } = middle
 
 
-router.get('/dashboard', authDashboard, async(req, res) => {
+router.get('/dashboard', cors(),authDashboard, async(req, res) => {
     req.body.query = req.query
     req.body.DashboardUserId = req.DashboardUserId
     const result = await report.getDashboard(req.body)
