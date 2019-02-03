@@ -7,7 +7,7 @@ var cors = require('cors')
 const { authApp, authDashboard } = middle
 
 
-router.get('/dashboard', cors(),authDashboard, async(req, res) => {
+router.get('/dashboard', authDashboard, async(req, res) => {
     req.body.query = req.query
     req.body.DashboardUserId = req.DashboardUserId
     const result = await report.getDashboard(req.body)
