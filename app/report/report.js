@@ -98,7 +98,7 @@ module.exports = {
             const { query, DashboardUserId } = reportObj
             const { limit, sortby, page, order, filterbydate, filterbysurveyor, searchbykelurahan,
                     searchbykecamatan, searchbykabupaten, searchbyprovinsi, filterbywilayah,
-                    filterbykabupaten, filterbydapil 
+                    filterbykabupaten, filterbydapil, filterbykoordinator 
                 } = query
             const pageNum = Number(page) 
             const lim = limit == 'all' ? 'all' : limit ? Number(limit) : 10
@@ -157,6 +157,10 @@ module.exports = {
             }
             if(searchbyprovinsi) {
                 sequelizeQuery.where = Object.assign(sequelizeQuery.where, { provinsi: { $like: `%${searchbyprovinsi}%` } } )
+            }
+
+            if(filterbykoordinator) {
+                sequelizeQuery.where = Object.assign(sequelizeQuery.where, { '$AppUser.CoordinatorId$': filterbykoordinator } )
             }
 
             if(filterbywilayah) {
