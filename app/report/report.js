@@ -10,8 +10,8 @@ const { Report, DashboardUser, AppUser } = models
 module.exports = {
     getAllReport: async (reportObj) => {
         try {
-            const allReport = await Report.findAndCountAll()
-            return { code: 200, data: allReport.count }
+            const allReport = await Report.findAll()
+            return { code: 200, data: allReport.length }
         } catch (e) {
             return { code: 500, data: e.message }
         }
