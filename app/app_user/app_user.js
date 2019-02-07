@@ -3,9 +3,71 @@ const models = require('../../config/models')
 const generatedId = require('../../lib/idGenerator')      
 const jwtToken = require('../../lib/jwtGenerator') 
 
-const { AppUser, DashboardUser, AppToken, Report } = models
+const { AppUser, DashboardUser, AppToken, Report, Wilayah, Kabupaten, Dapil } = models
 
 module.exports = {
+    downloadPart: async (reportObj) => {
+        try {
+            const allReport = await Report.findAll()
+            return { code: 200, data: allReport.length }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    downloadFull: async (reportObj) => {
+        try {
+//             SELECT A.name AS Nama_Surveyor, D.name AS Nama_Koordinator, W.name AS Wilayah, 
+// K.name AS Kabupaten, DA.name AS Dapil,
+// (SELECT COUNT(*) FROM ayojodb.Reports where AppUserId = A.id
+// AND createdAt >= '2019-02-05 00:00:00' AND createdAt <= '2019-02-05 24:00:00') AS Total_Marker 
+// FROM ayojodb.AppUsers AS A INNER JOIN ayojodb.DashboardUsers AS D 
+// ON A.CoordinatorId = D.id INNER JOIN ayojodb.Wilayahs AS W 
+// ON D.WilayahId = W.id INNER JOIN ayojodb.Kabupatens AS K
+// ON D.KabupatenId = K.id INNER JOIN ayojodb.Dapils AS DA
+// ON D.DapilId = DA.id WHERE W.name = 'Bogor';
+            var json2xls = require('json2xls')
+            var fs = require('fs')
+            let sequelizeQuery = {
+                distinct: true,
+                include: [
+                  { model: DashboardUser,
+                    include: [
+                        { model: Wilayah },
+                        { model: Kabupaten },
+                        { model: Dapil }
+                    ]
+                }
+                ],
+                order: [
+                  ['id' ,'DESC']
+                ], 
+                limit: 100
+            }
+            
+            const apps = await AppUser.findAndCountAll(sequelizeQuery)
+            const result = { rows: [] }
+            let appProcess = await apps.rows.map(async (app) => {
+                let allReport = await Report.findAndCountAll({
+                    where: {
+                        AppUserId: app.id,
+                        createdAt: {$and: {$gt: '2019-02-02', $lt: '2019-02-03'} }
+                    }
+                })
+                let appObject = await getDataExcel(app.id, app, allReport.count)
+                await result.rows.push(appObject)
+            })
+            await Promise.all(appProcess)
+            
+            var xls = json2xls(result.rows,{
+                fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Name', 'Koordinator', 'TotalMarker']
+            });
+            const allData = fs.writeFileSync('data.xlsx', xls, 'binary');
+
+            return { code: 200, data: allData }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
     getAllUser: async(appObj) => {
         try {
             const allUser = await AppUser.findAndCountAll()
@@ -255,6 +317,45 @@ async function getAppDetail(appId, app, countReport) {
     if(app.DashboardUser){
       appObj.coordinatorId = app.DashboardUser.id
       appObj.coordinatorName = app.DashboardUser.name
+    }
+    
+    return appObj
+}
+
+async function getDataExcel(appId, app, countReport) {
+    if(!app) {
+      app = await AppUser.findOne({
+        where: {
+          id: appId
+        },
+        include: [
+          { model: DashboardUser, 
+            include: [
+                { model: Wilayah },
+                { model: Kabupaten },
+                { model: Dapil }
+            ]
+        },
+        ]
+      })
+    }
+    const appObj = {
+      id: app.id,
+      Name: app.name,
+      TotalMarker: countReport
+    }
+    
+    if(app.DashboardUser){
+      appObj.Koordinator = app.DashboardUser.name
+    }
+    if(app.DashboardUser.Wilayah){
+        appObj.Wilayah = app.DashboardUser.Wilayah.name
+    }
+    if(app.DashboardUser.Kabupaten){
+        appObj.Kabupaten = app.DashboardUser.Kabupaten.name
+    }
+    if(app.DashboardUser.Dapil){
+        appObj.Dapil = app.DashboardUser.Dapil.name
     }
     
     return appObj

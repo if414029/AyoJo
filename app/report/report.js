@@ -5,13 +5,14 @@ const nodeGeocoder = require('../../lib/geocoder')
 const date = require('date-and-time');
 const moment = require('moment')
 
-const { Report, DashboardUser, AppUser } = models
+const { Report, DashboardUser, AppUser, sequelize } = models
 
 module.exports = {
     getAllReport: async (reportObj) => {
         try {
-            const allReport = await Report.findAll()
-            return { code: 200, data: allReport.length }
+            let queries = `SELECT COUNT(*) AS data FROM ayojodb.Reports`
+            let news = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )
+            return { code: 200, data: news[0].data }
         } catch (e) {
             return { code: 500, data: e.message }
         }

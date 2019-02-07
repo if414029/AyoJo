@@ -5,6 +5,14 @@ const middle = require('../../lib/authMiddleware')
 const router = express.Router()
 const { authDashboard } = middle
 
+router.get('/downloadPart', async(req, res) => {
+    const result = await appUser.downloadPart(req.body)
+    return response(res, result.code, result.data)
+})
+router.get('/downloadFull', async(req, res) => {
+    const result = await appUser.downloadFull(req.body)
+    return response(res, result.code, result.data)
+})
 router.get('/', authDashboard, async(req, res) => {
     req.body.query = req.query
     req.body.DashboardUserId = req.DashboardUserId
