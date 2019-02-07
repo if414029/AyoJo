@@ -11,23 +11,18 @@ module.exports = {
     getAllReport: async (reportObj) => {
         try {
             let queries = `SELECT COUNT(*) AS data FROM ayojodb.Reports`
-            let news = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )
-            return { code: 200, data: news[0].data }
+            let reports = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )
+            return { code: 200, data: reports[0].data }
         } catch (e) {
             return { code: 500, data: e.message }
         }
     },
     getReportToday: async (reportObj) => {
         try {
-            const allReport = await Report.findAndCountAll({
-                where: {
-                    createdAt: {
-                        $gt: moment().startOf('day'),
-                        $lt: moment().endOf('day')
-                    }
-                }
-            })
-            return { code: 200, data: allReport.count }
+            let queries = `SELECT COUNT(*) AS data FROM ayojodb.Reports WHERE createdAt >= CURDATE()`
+            let reports = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )
+
+            return { code: 200, data: reports[0].data }
         } catch (e) {
             return { code: 500, data: e.message }
         }
