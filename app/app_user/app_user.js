@@ -31,7 +31,7 @@ module.exports = {
                             ON A.CoordinatorId = D.id INNER JOIN ayojodb.Wilayahs AS W 
                             ON D.WilayahId = W.id INNER JOIN ayojodb.Kabupatens AS K
                             ON D.KabupatenId = K.id INNER JOIN ayojodb.Dapils AS DA
-                            ON D.DapilId = DA.id WHERE W.name = 'Matraman'`
+                            ON D.DapilId = DA.id`
             let result = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )                            
 
             const dataObj = result.map(obj =>{
