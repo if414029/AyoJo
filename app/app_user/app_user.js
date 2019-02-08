@@ -1,9 +1,12 @@
 const response = require('../../lib/newResponse')
 const models = require('../../config/models')
 const generatedId = require('../../lib/idGenerator')      
-const jwtToken = require('../../lib/jwtGenerator') 
+const jwtToken = require('../../lib/jwtGenerator')
+const json2xls = require('json2xls')
+const fs = require('fs')
+const moment = require('moment') 
 
-const { AppUser, DashboardUser, AppToken, Report, Wilayah, Kabupaten, Dapil } = models
+const { AppUser, DashboardUser, AppToken, Report, Wilayah, Kabupaten, Dapil, sequelize } = models
 
 module.exports = {
     downloadPart: async (reportObj) => {
@@ -14,56 +17,33 @@ module.exports = {
             return { code: 500, data: e.message }
         }
     },
-    downloadFull: async (reportObj) => {
+    downloadFull: async (appObj) => {
         try {
-//             SELECT A.name AS Nama_Surveyor, D.name AS Nama_Koordinator, W.name AS Wilayah, 
-// K.name AS Kabupaten, DA.name AS Dapil,
-// (SELECT COUNT(*) FROM ayojodb.Reports where AppUserId = A.id
-// AND createdAt >= '2019-02-05 00:00:00' AND createdAt <= '2019-02-05 24:00:00') AS Total_Marker 
-// FROM ayojodb.AppUsers AS A INNER JOIN ayojodb.DashboardUsers AS D 
-// ON A.CoordinatorId = D.id INNER JOIN ayojodb.Wilayahs AS W 
-// ON D.WilayahId = W.id INNER JOIN ayojodb.Kabupatens AS K
-// ON D.KabupatenId = K.id INNER JOIN ayojodb.Dapils AS DA
-// ON D.DapilId = DA.id WHERE W.name = 'Bogor';
-            var json2xls = require('json2xls')
-            var fs = require('fs')
-            let sequelizeQuery = {
-                distinct: true,
-                include: [
-                  { model: DashboardUser,
-                    include: [
-                        { model: Wilayah },
-                        { model: Kabupaten },
-                        { model: Dapil }
-                    ]
-                }
-                ],
-                order: [
-                  ['id' ,'DESC']
-                ], 
-                limit: 100
-            }
-            
-            const apps = await AppUser.findAndCountAll(sequelizeQuery)
-            const result = { rows: [] }
-            let appProcess = await apps.rows.map(async (app) => {
-                let allReport = await Report.findAndCountAll({
-                    where: {
-                        AppUserId: app.id,
-                        createdAt: {$and: {$gt: '2019-02-02', $lt: '2019-02-03'} }
-                    }
-                })
-                let appObject = await getDataExcel(app.id, app, allReport.count)
-                await result.rows.push(appObject)
+            const { tanggal } = appObj 
+            const first = moment(tanggal, 'YYYY-MM-DD').format('YYYY-MM-DD HH:mm:ss')
+            const last = moment(tanggal, 'YYYY-MM-DD').add(1,'day').format('YYYY-MM-DD HH:mm:ss')
+
+            let queries = `SELECT A.name AS Nama_Surveyor, D.name AS Nama_Koordinator, W.name AS Wilayah, 
+                            K.name AS Kabupaten, DA.name AS Dapil,
+                            (SELECT COUNT(*) FROM ayojodb.Reports where AppUserId = A.id
+                            AND createdAt >= '${first}' AND createdAt <= '${last}') AS Total_Marker 
+                            FROM ayojodb.AppUsers AS A INNER JOIN ayojodb.DashboardUsers AS D 
+                            ON A.CoordinatorId = D.id INNER JOIN ayojodb.Wilayahs AS W 
+                            ON D.WilayahId = W.id INNER JOIN ayojodb.Kabupatens AS K
+                            ON D.KabupatenId = K.id INNER JOIN ayojodb.Dapils AS DA
+                            ON D.DapilId = DA.id WHERE W.name = 'Matraman'`
+            let result = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )                            
+
+            const dataObj = result.map(obj =>{
+                return Object.assign(obj, {Tanggal: tanggal})
             })
-            await Promise.all(appProcess)
-            
-            var xls = json2xls(result.rows,{
-                fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Name', 'Koordinator', 'TotalMarker']
+
+            var xls = json2xls(dataObj,{
+                fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
             });
             const allData = fs.writeFileSync('data.xlsx', xls, 'binary');
 
-            return { code: 200, data: allData }
+            return { code: 200, data: 'data.xlsx' }
         } catch (e) {
             return { code: 500, data: e.message }
         }

@@ -9,9 +9,10 @@ router.get('/downloadPart', async(req, res) => {
     const result = await appUser.downloadPart(req.body)
     return response(res, result.code, result.data)
 })
-router.get('/downloadFull', async(req, res) => {
+router.get('/downloadFull/:tanggal', async(req, res) => {
+    req.body.tanggal = req.params.tanggal
     const result = await appUser.downloadFull(req.body)
-    return response(res, result.code, result.data)
+    return res.download(result.data)
 })
 router.get('/', authDashboard, async(req, res) => {
     req.body.query = req.query
