@@ -5,9 +5,11 @@ const middle = require('../../lib/authMiddleware')
 const router = express.Router()
 const { authDashboard } = middle
 
-router.get('/downloadPart', async(req, res) => {
+router.get('/downloadPart/:tanggal/:id', async(req, res) => {
+    req.body.tanggal = req.params.tanggal
+    req.body.koordinatorId = req.params.id
     const result = await appUser.downloadPart(req.body)
-    return response(res, result.code, result.data)
+    return res.download(result.data)
 })
 router.get('/downloadFull/:tanggal', async(req, res) => {
     req.body.tanggal = req.params.tanggal

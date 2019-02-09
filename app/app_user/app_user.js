@@ -9,10 +9,33 @@ const moment = require('moment')
 const { AppUser, DashboardUser, AppToken, Report, Wilayah, Kabupaten, Dapil, sequelize } = models
 
 module.exports = {
-    downloadPart: async (reportObj) => {
+    downloadPart: async (appObj) => {
         try {
-            const allReport = await Report.findAll()
-            return { code: 200, data: allReport.length }
+            const { tanggal, koordinatorId } = appObj 
+            const first = moment(tanggal, 'YYYY-MM-DD').format('YYYY-MM-DD HH:mm:ss')
+            const last = moment(tanggal, 'YYYY-MM-DD').add(1,'day').format('YYYY-MM-DD HH:mm:ss')
+
+            let queries = `SELECT A.name AS Nama_Surveyor, D.name AS Nama_Koordinator, W.name AS Wilayah, 
+                            K.name AS Kabupaten, DA.name AS Dapil,
+                            (SELECT COUNT(*) FROM ayojodb.Reports where AppUserId = A.id
+                            AND createdAt >= '${first}' AND createdAt <= '${last}') AS Total_Marker 
+                            FROM ayojodb.AppUsers AS A INNER JOIN ayojodb.DashboardUsers AS D 
+                            ON A.CoordinatorId = D.id INNER JOIN ayojodb.Wilayahs AS W 
+                            ON D.WilayahId = W.id INNER JOIN ayojodb.Kabupatens AS K
+                            ON D.KabupatenId = K.id INNER JOIN ayojodb.Dapils AS DA
+                            ON D.DapilId = DA.id WHERE A.CoordinatorId = '${koordinatorId}'`
+            let result = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )                            
+
+            const dataObj = result.map(obj =>{
+                return Object.assign(obj, {Tanggal: tanggal})
+            })
+
+            var xls = json2xls(dataObj,{
+                fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
+            });
+            const allData = fs.writeFileSync('DataPart.xlsx', xls, 'binary');
+
+            return { code: 200, data: 'DataPart.xlsx' }
         } catch (e) {
             return { code: 500, data: e.message }
         }
@@ -41,9 +64,9 @@ module.exports = {
             var xls = json2xls(dataObj,{
                 fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
             });
-            const allData = fs.writeFileSync('data.xlsx', xls, 'binary');
+            const allData = fs.writeFileSync('DataFull.xlsx', xls, 'binary');
 
-            return { code: 200, data: 'data.xlsx' }
+            return { code: 200, data: 'DataFull.xlsx' }
         } catch (e) {
             return { code: 500, data: e.message }
         }
