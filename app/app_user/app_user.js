@@ -33,9 +33,9 @@ module.exports = {
             var xls = json2xls(dataObj,{
                 fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
             });
-            const allData = fs.writeFileSync('public/DataPart.xlsx', xls, 'binary');
+            const allData = fs.writeFileSync('public/datapart.xlsx', xls, 'binary');
 
-            return { code: 200, data: 'public/DataPart.xlsx' }
+            return { code: 200, data: 'public/datapart.xlsx' }
         } catch (e) {
             return { code: 500, data: e.message }
         }
@@ -64,9 +64,9 @@ module.exports = {
             var xls = json2xls(dataObj,{
                 fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
             });
-            const allData = fs.writeFileSync('public/DataFull.xlsx', xls, 'binary');
+            const allData = fs.writeFileSync('public/datafull.xlsx', xls, 'binary');
 
-            return { code: 200, data: 'public/DataFull.xlsx' }
+            return { code: 200, data: 'public/datafull.xlsx' }
         } catch (e) {
             return { code: 500, data: e.message }
         }
