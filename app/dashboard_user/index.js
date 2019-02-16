@@ -5,6 +5,12 @@ const middle = require('../../lib/authMiddleware')
 const router = express.Router()
 const { authDashboard } = middle
 
+
+router.get('/downloadKoordinator', authDashboard, async(req, res) => {
+    req.body.RoleId = req.RoleId
+    const result = await dashboardUser.downloadKoordinator(req.body)
+    return response(res, result.code, result.data)
+})
 router.get('/wilayah', async(req, res) => {
     req.body.query = req.query
     const result = await dashboardUser.getWilayah(req.body)
@@ -42,7 +48,8 @@ router.get('/', async(req, res) => {
     const result = await dashboardUser.get(req.body)
     return response(res, result.code, result.data)
 })
-router.post('/', async(req, res) => {
+router.post('/', authDashboard, async(req, res) => {
+    req.body.RoleId = req.RoleId
     const result = await dashboardUser.create(req.body)
     return response(res, result.code, result.data)
 })
@@ -59,13 +66,15 @@ router.post('/cekStatus', async(req, res) => {
     const result = await dashboardUser.cekStatus(req.body)
     return response(res, result.code, result.data)
 })
-router.put('/:id', async(req, res) => {
+router.put('/:id', authDashboard, async(req, res) => {
     req.body.dashboardUserId = req.params.id
+    req.body.RoleId = req.RoleId
     const result = await dashboardUser.edit(req.body)
     return response(res, result.code, result.data)
 })
-router.delete('/:id', async(req, res) => {
+router.delete('/:id', authDashboard, async(req, res) => {
     req.body.dashboardUserId = req.params.id
+    req.body.RoleId = req.RoleId
     const result = await dashboardUser.delete(req.body)
     return response(res, result.code, result.data)
 })

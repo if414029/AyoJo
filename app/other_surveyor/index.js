@@ -14,7 +14,8 @@ router.get('/getAllUser', async(req, res) => {
     const result = await otherSurveyor.getAllUser(req.body)
     return response(res, result.code, result.data)
 })
-router.post('/', async(req, res) => {
+router.post('/', authDashboard, async(req, res) => {
+    req.body.RoleId = req.RoleId
     const result = await otherSurveyor.create(req.body)
     return response(res, result.code, result.data)
 })

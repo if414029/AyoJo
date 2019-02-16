@@ -60,8 +60,12 @@ module.exports = {
     },
     create: async (appObj) => {
         try {
-            const { username, password } = appObj
+            const { username, password, RoleId } = appObj
             const id = generatedId() 
+
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
             
             const newAppUser = await OtherSurveyor.create({
                 id,

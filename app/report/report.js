@@ -5,7 +5,7 @@ const nodeGeocoder = require('../../lib/geocoder')
 const date = require('date-and-time');
 const moment = require('moment')
 
-const { Report, DashboardUser, AppUser, sequelize } = models
+const { Report, DashboardUser, AppUser, sequelize, Wilayah } = models
 
 module.exports = {
     getAllReport: async (reportObj) => {
@@ -192,7 +192,15 @@ module.exports = {
             if (!name || !lat || !lng || !images || !answer1 || !answer2 || !address1 || !pekerjaan || !usia || !jenisKelamin) {
                 return { code: 400, data: "Required field must be filled" }
             }
-            const app = await AppUser.findById(AppUserId)
+            const app = await AppUser.findOne({
+                where: {
+                    id: AppUserId
+                },
+                include: [
+                    { model: DashboardUser, include: [ { model: Wilayah } ] }
+                ]
+            })
+
             const totalReport = await Report.findAndCountAll({
                 where: {
                     AppuserId: app.id,
@@ -203,7 +211,11 @@ module.exports = {
                 }
             })
             
-            if(totalReport.rows.length >= 10) {
+            if(totalReport.rows.length >= 25 && app.DashboardUser.Wilayah.name == 'Bogor') {
+                return { code: 500, data: "You can make report 25 per day" }
+            }
+
+            if(totalReport.rows.length >= 10 && app.DashboardUser.Wilayah.name == 'Matraman') {
                 return { code: 500, data: "You can make report 10 per day" }
             }
 

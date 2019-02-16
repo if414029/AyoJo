@@ -11,7 +11,12 @@ const { AppUser, DashboardUser, AppToken, Report, Wilayah, Kabupaten, Dapil, seq
 module.exports = {
     downloadPart: async (appObj) => {
         try {
-            const { tanggal, koordinatorId } = appObj 
+            const { tanggal, koordinatorId, RoleId } = appObj
+            
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
             const first = moment(tanggal, 'YYYY-MM-DD').format('YYYY-MM-DD HH:mm:ss')
             const last = moment(tanggal, 'YYYY-MM-DD').add(1,'day').format('YYYY-MM-DD HH:mm:ss')
 
@@ -30,19 +35,24 @@ module.exports = {
                 return Object.assign(obj, {Tanggal: tanggal})
             })
 
-            var xls = json2xls(dataObj,{
-                fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
-            });
-            const allData = fs.writeFileSync('public/datapart.xlsx', xls, 'binary');
+            // var xls = json2xls(dataObj,{
+            //     fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
+            // });
+            // const allData = fs.writeFileSync('public/datapart.xlsx', xls, 'binary');
 
-            return { code: 200, data: 'public/datapart.xlsx' }
+            return { code: 200, data: dataObj }
         } catch (e) {
             return { code: 500, data: e.message }
         }
     },
     downloadFull: async (appObj) => {
         try {
-            const { tanggal } = appObj 
+            const { tanggal, RoleId } = appObj
+            
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
             const first = moment(tanggal, 'YYYY-MM-DD').format('YYYY-MM-DD HH:mm:ss')
             const last = moment(tanggal, 'YYYY-MM-DD').add(1,'day').format('YYYY-MM-DD HH:mm:ss')
 
@@ -61,12 +71,32 @@ module.exports = {
                 return Object.assign(obj, {Tanggal: tanggal})
             })
 
-            var xls = json2xls(dataObj,{
-                fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
-            });
-            const allData = fs.writeFileSync('public/datafull.xlsx', xls, 'binary');
+            // var xls = json2xls(dataObj,{
+            //     fields: ['Tanggal','Wilayah','Kabupaten','Dapil','Nama_Surveyor', 'Nama_Koordinator', 'Total_Marker']
+            // });
+            // const allData = fs.writeFile('public/datafull.xlsx', xls, 'binary');
 
-            return { code: 200, data: 'public/datafull.xlsx' }
+            return { code: 200, data: dataObj }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
+    downloadSurveyor: async (appObj) => {
+        try {
+            const { koordinatorId, RoleId } = appObj
+            
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
+
+            let queries = `SELECT A.name AS Nama_Surveyor, D.name AS Nama_Koordinator,
+                            A.username AS Username, A.password AS Password
+                            FROM AppUsers AS A INNER JOIN DashboardUsers AS D 
+                            ON A.CoordinatorId = D.id WHERE A.CoordinatorId = '${koordinatorId}'`
+            let result = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )                            
+
+            return { code: 200, data: result }
         } catch (e) {
             return { code: 500, data: e.message }
         }
@@ -150,13 +180,18 @@ module.exports = {
     },
     create: async (appObj) => {
         try {
-            const { username, password, name, dob, CoordinatorId } = appObj
+            const { username, password, name, dob, CoordinatorId, RoleId } = appObj
             const id = generatedId() 
             const generateNumber = Math.floor(Math.random() * 9) + 1
             const coordinator = await DashboardUser.findById(CoordinatorId)
             const splitUsername = name.split(' ')
             const splitDob = dob.slice(0,2)
             const fixUsername = splitUsername[0] + splitDob + generateNumber
+
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
             if(!coordinator) {
                 return { code: 404, data: 'Invalid Coordinator Id' }
             }
@@ -256,8 +291,12 @@ module.exports = {
     },
     edit: async (appObj) => {
         try {
-            const { AppUserId, name, dob, CoordinatorId } = appObj
+            const { AppUserId, name, dob, CoordinatorId, RoleId } = appObj
             const app = await AppUser.findById(AppUserId)
+
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
 
             if(!app) {
                 return { code: 400, data: "Invalid App User Id" }
@@ -281,7 +320,12 @@ module.exports = {
     },
     delete: async (appObj) => {
         try {
-            const { AppUserId } = appObj
+            const { AppUserId, RoleId } = appObj
+
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
             const app = await AppUser.findById(AppUserId)
             if(!app) {
                 return { code: 404, data: "App User Id Invalid" }

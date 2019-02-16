@@ -4,9 +4,27 @@ const generatedId = require('../../lib/idGenerator')
 const jwtToken = require('../../lib/jwtGenerator')
 const moment = require('moment')
 
-const { DashboardUser, Role, DashboardToken, Wilayah, Kabupaten, Dapil, AppToken, AppUser, Report } = models
+const { DashboardUser, sequelize, Role, DashboardToken, Wilayah, Kabupaten, Dapil, AppToken, AppUser, Report } = models
 
 module.exports = {
+    downloadKoordinator: async (appObj) => {
+        try {
+            const { RoleId } = appObj
+            
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
+            let queries = `SELECT D.name AS Nama_Koordinator,
+                            D.username AS Username, D.password AS Password
+                            FROM DashboardUsers AS D WHERE D.RoleId != 'jmkt41ot' AND D.RoleId != 'jkvax12g'`
+            let result = await sequelize.query(queries , { type: sequelize.QueryTypes.SELECT } )                            
+
+            return { code: 200, data: result }
+        } catch (e) {
+            return { code: 500, data: e.message }
+        }
+    },
     getWilayah: async (dashboardObj) => {
         try {
             const { query } = dashboardObj
@@ -232,11 +250,13 @@ module.exports = {
     },
     create: async (dashboardObj) => {
         try {
-            const { WilayahId, DapilId, KabupatenId, name, dob } = dashboardObj
+            const { WilayahId, DapilId, KabupatenId, name, dob, RoleId } = dashboardObj
             const id = generatedId() 
-            for (var i =0 ; i<35; i++){
-                console.log(generatedId())
+            
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
             }
+
             const generateNumber = Math.floor(Math.random() * 9) + 1 
             const splitUsername = name.split(' ')
             const splitDob = dob.split('-')
@@ -358,9 +378,13 @@ module.exports = {
     },
     edit: async (dashboardObj) => {
         try {
-            const { dashboardUserId, WilayahId, DapilId, KabupatenId, name, dob } = dashboardObj
+            const { dashboardUserId, WilayahId, DapilId, KabupatenId, name, dob, RoleId } = dashboardObj
             const dashboard = await DashboardUser.findById(dashboardUserId)
             
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
             if(!dashboard) {
                 return { code: 400, data: "Invalid Dashboard User Id " }
             }
@@ -394,8 +418,13 @@ module.exports = {
     },
     delete: async (dashboardObj) => {
         try {
-            const { dashboardUserId } = dashboardObj
+            const { dashboardUserId, RoleId } = dashboardObj
             const dashboard = await DashboardUser.findById(dashboardUserId)
+            
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
+
             if(!dashboard) {
                 return { code: 404, data: "Dashboard User Id Invalid" }
             }
