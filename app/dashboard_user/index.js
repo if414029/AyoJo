@@ -48,11 +48,15 @@ router.get('/', async(req, res) => {
     const result = await dashboardUser.get(req.body)
     return response(res, result.code, result.data)
 })
-router.post('/', authDashboard, async(req, res) => {
-    req.body.RoleId = req.RoleId
+router.post('/', async(req, res) => {
     const result = await dashboardUser.create(req.body)
     return response(res, result.code, result.data)
 })
+// router.post('/', authDashboard, async(req, res) => {
+//     req.body.RoleId = req.RoleId
+//     const result = await dashboardUser.create(req.body)
+//     return response(res, result.code, result.data)
+// })
 router.post('/login', async(req, res) => {
     const result = await dashboardUser.login(req.body)
     res.set({ authorization: `Bearer ${result.header}` })
@@ -66,17 +70,27 @@ router.post('/cekStatus', async(req, res) => {
     const result = await dashboardUser.cekStatus(req.body)
     return response(res, result.code, result.data)
 })
-router.put('/:id', authDashboard, async(req, res) => {
+router.put('/:id', async(req, res) => {
     req.body.dashboardUserId = req.params.id
-    req.body.RoleId = req.RoleId
     const result = await dashboardUser.edit(req.body)
     return response(res, result.code, result.data)
 })
-router.delete('/:id', authDashboard, async(req, res) => {
+// router.put('/:id', authDashboard, async(req, res) => {
+//     req.body.dashboardUserId = req.params.id
+//     req.body.RoleId = req.RoleId
+//     const result = await dashboardUser.edit(req.body)
+//     return response(res, result.code, result.data)
+// })
+router.delete('/:id', async(req, res) => {
     req.body.dashboardUserId = req.params.id
-    req.body.RoleId = req.RoleId
     const result = await dashboardUser.delete(req.body)
     return response(res, result.code, result.data)
 })
+// router.delete('/:id', authDashboard, async(req, res) => {
+//     req.body.dashboardUserId = req.params.id
+//     req.body.RoleId = req.RoleId
+//     const result = await dashboardUser.delete(req.body)
+//     return response(res, result.code, result.data)
+// })
 
 module.exports = router
