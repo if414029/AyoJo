@@ -188,9 +188,9 @@ module.exports = {
             const splitDob = dob.slice(0,2)
             const fixUsername = splitUsername[0] + splitDob + generateNumber
 
-            // if(RoleId == 'jkvax12g'){
-            //     return { code: 401, data: "You don't have access" }
-            // }
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
 
             if(!coordinator) {
                 return { code: 404, data: 'Invalid Coordinator Id' }
@@ -294,9 +294,9 @@ module.exports = {
             const { AppUserId, name, dob, CoordinatorId, RoleId } = appObj
             const app = await AppUser.findById(AppUserId)
 
-            // if(RoleId == 'jkvax12g'){
-            //     return { code: 401, data: "You don't have access" }
-            // }
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
 
             if(!app) {
                 return { code: 400, data: "Invalid App User Id" }
@@ -322,9 +322,9 @@ module.exports = {
         try {
             const { AppUserId, RoleId } = appObj
 
-            // if(RoleId == 'jkvax12g'){
-            //     return { code: 401, data: "You don't have access" }
-            // }
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
 
             const app = await AppUser.findById(AppUserId)
             if(!app) {

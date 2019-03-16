@@ -34,15 +34,15 @@ router.get('/getAllUser', async(req, res) => {
     const result = await appUser.getAllUser(req.body)
     return response(res, result.code, result.data)
 })
-router.post('/', async(req, res) => {
-    const result = await appUser.create(req.body)
-    return response(res, result.code, result.data)
-})
-// router.post('/', authDashboard, async(req, res) => {
-//     req.body.RoleId = req.RoleId
+// router.post('/', async(req, res) => {
 //     const result = await appUser.create(req.body)
 //     return response(res, result.code, result.data)
 // })
+router.post('/', authDashboard, async(req, res) => {
+    req.body.RoleId = req.RoleId
+    const result = await appUser.create(req.body)
+    return response(res, result.code, result.data)
+})
 router.post('/login', async(req, res) => {
     const result = await appUser.login(req.body)
     res.set({ authorization: `Bearer ${result.header}` })
@@ -56,27 +56,27 @@ router.post('/cekStatus', async(req, res) => {
     const result = await appUser.cekStatus(req.body)
     return response(res, result.code, result.data)
 })
-router.put('/:id', async(req, res) => {
-    req.body.AppUserId = req.params.id
-    const result = await appUser.edit(req.body)
-    return response(res, result.code, result.data)
-})
-// router.put('/:id', authDashboard, async(req, res) => {
+// router.put('/:id', async(req, res) => {
 //     req.body.AppUserId = req.params.id
-//     req.body.RoleId = req.RoleId
 //     const result = await appUser.edit(req.body)
 //     return response(res, result.code, result.data)
 // })
-router.delete('/:id', async(req, res) => {
+router.put('/:id', authDashboard, async(req, res) => {
     req.body.AppUserId = req.params.id
-    const result = await appUser.delete(req.body)
+    req.body.RoleId = req.RoleId
+    const result = await appUser.edit(req.body)
     return response(res, result.code, result.data)
 })
-// router.delete('/:id', authDashboard, async(req, res) => {
+// router.delete('/:id', async(req, res) => {
 //     req.body.AppUserId = req.params.id
-//     req.body.RoleId = req.RoleId
 //     const result = await appUser.delete(req.body)
 //     return response(res, result.code, result.data)
 // })
+router.delete('/:id', authDashboard, async(req, res) => {
+    req.body.AppUserId = req.params.id
+    req.body.RoleId = req.RoleId
+    const result = await appUser.delete(req.body)
+    return response(res, result.code, result.data)
+})
 
 module.exports = router

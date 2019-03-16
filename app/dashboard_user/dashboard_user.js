@@ -253,9 +253,9 @@ module.exports = {
             const { WilayahId, DapilId, KabupatenId, name, dob, RoleId } = dashboardObj
             const id = generatedId() 
             
-            // if(RoleId == 'jkvax12g'){
-            //     return { code: 401, data: "You don't have access" }
-            // }
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
 
             const generateNumber = Math.floor(Math.random() * 9) + 1 
             const splitUsername = name.split(' ')
@@ -381,9 +381,9 @@ module.exports = {
             const { dashboardUserId, WilayahId, DapilId, KabupatenId, name, dob, RoleId } = dashboardObj
             const dashboard = await DashboardUser.findById(dashboardUserId)
             
-            // if(RoleId == 'jkvax12g'){
-            //     return { code: 401, data: "You don't have access" }
-            // }
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
 
             if(!dashboard) {
                 return { code: 400, data: "Invalid Dashboard User Id " }
@@ -421,9 +421,9 @@ module.exports = {
             const { dashboardUserId, RoleId } = dashboardObj
             const dashboard = await DashboardUser.findById(dashboardUserId)
             
-            // if(RoleId == 'jkvax12g'){
-            //     return { code: 401, data: "You don't have access" }
-            // }
+            if(RoleId == 'jkvax12g'){
+                return { code: 401, data: "You don't have access" }
+            }
 
             if(!dashboard) {
                 return { code: 404, data: "Dashboard User Id Invalid" }
