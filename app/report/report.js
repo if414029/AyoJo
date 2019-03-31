@@ -211,8 +211,12 @@ module.exports = {
                 }
             })
             
-            if(totalReport.rows.length >= 25 && app.DashboardUser.Wilayah.name == 'Bogor') {
-                return { code: 500, data: "You can make report 25 per day" }
+            if(totalReport.rows.length > 0 && app.DashboardUser.Wilayah.name == 'Bogor') {
+                return { code: 500, data: "Anda tidak dapat membuat report lagi." }
+            }
+
+            if(totalReport.rows.length > 0 && app.DashboardUser.Wilayah.name == 'Sukabumi') {
+                return { code: 500, data: "Anda tidak dapat membuat report lagi." }
             }
 
             if(totalReport.rows.length >= 10 && app.DashboardUser.Wilayah.name == 'Matraman') {
