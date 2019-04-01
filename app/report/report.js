@@ -215,8 +215,8 @@ module.exports = {
                 return { code: 500, data: "Anda tidak dapat membuat report lagi." }
             }
 
-            if(totalReport.rows.length > 0 && app.DashboardUser.Wilayah.name == 'Sukabumi') {
-                return { code: 500, data: "Anda tidak dapat membuat report lagi." }
+            if(totalReport.rows.length >= 10 && app.DashboardUser.Wilayah.name == 'Sukabumi') {
+                return { code: 500, data: "You can make report 10 per day" }
             }
 
             if(totalReport.rows.length >= 10 && app.DashboardUser.Wilayah.name == 'Matraman') {
