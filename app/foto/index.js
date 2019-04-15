@@ -13,7 +13,7 @@ router.get('/listKegiatan', async(req, res) => {
 })
 router.get('/listDaerah', async(req, res) => {
     req.body.query = req.query
-    const result = await foto.listWilayah(req.body)
+    const result = await foto.listDaerah(req.body)
     return response(res, result.code, result.data)
 })
 router.get('/', async(req, res) => {
@@ -21,8 +21,12 @@ router.get('/', async(req, res) => {
     const result = await foto.get(req.body)
     return response(res, result.code, result.data)
 })
-router.post('/', authDashboard, async(req, res) => {
-    req.body.RoleId = req.RoleId
+// router.post('/', authDashboard, async(req, res) => {
+//     req.body.RoleId = req.RoleId
+//     const result = await foto.create(req.body)
+//     return response(res, result.code, result.data)
+// })
+router.post('/', async(req, res) => {
     const result = await foto.create(req.body)
     return response(res, result.code, result.data)
 })
